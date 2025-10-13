@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='epiccli-lite',
-    version='0.1.1',
+    use_scm_version=True,
     author="Zenotech Ltd",
     author_email="support@zenotech.com",
     description="A CLI for the EPIC API",
