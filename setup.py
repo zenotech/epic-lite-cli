@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name='epiccli',
+    name='epiccli-lite',
     version='0.1.1',
     author="Zenotech Ltd",
     author_email="support@zenotech.com",
