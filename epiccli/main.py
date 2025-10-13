@@ -180,8 +180,7 @@ def create(username, email, password, project):
         username (str): The username for the new user.
         email (str): The email address for the new user.
         password (str): The password for the new user.
-        project (str, optional): The name of the project to use for the admin
-            user. Defaults to the active project.
+        project (str, optional): The name of the project to use for the admin user. Defaults to the active project.
     """
     project_name = get_active_project(project)
     if not project_name:
@@ -202,8 +201,7 @@ def delete(username, project):
 
     Args:
         username (str): The username of the user to delete.
-        project (str, optional): The name of the project to use. Defaults to
-            the active project.
+        project (str, optional): The name of the project to use. Defaults to the active project.
     """
     project_name = get_active_project(project)
     if not project_name:
@@ -275,8 +273,7 @@ def update_spend(limit, project_name):
 
     Args:
         limit (int): The new monthly spend limit.
-        project_name (str, optional): The name of the project. Defaults to the
-            active project.
+        project_name (str, optional): The name of the project. Defaults to the active project.
     """
     project_name = get_active_project(project_name)
     if not project_name:
@@ -388,8 +385,7 @@ def get_job_command(job_id, project_name):
 
     Args:
         job_id (int): The unique identifier for the job.
-        project_name (str, optional): The name of the project. Defaults to the
-            active project.
+        project_name (str, optional): The name of the project. Defaults to the active project.
     """
     project_name = get_active_project(project_name)
     if not project_name:
@@ -410,8 +406,7 @@ def cancel_job_command(job_id, project_name):
 
     Args:
         job_id (int): The unique identifier for the job to be cancelled.
-        project_name (str, optional): The name of the project. Defaults to the
-            active project.
+        project_name (str, optional): The name of the project. Defaults to the active project.
     """
     project_name = get_active_project(project_name)
     if not project_name:
