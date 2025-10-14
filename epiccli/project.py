@@ -35,7 +35,6 @@ def get_project_details(project_name, project_config):
             if p.get('project_id') == project_name:
                 project_found = True
                 break
-
         if not project_found:
             click.echo(f"Error: Project '{project_name}' not found on the server.")
             return

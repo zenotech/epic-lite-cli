@@ -6,10 +6,16 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+from importlib import metadata
+
 project = 'epiccli'
-copyright = '2024, Zenotech Ltd'
+copyright = '2025, Zenotech Ltd'
 author = 'Zenotech Ltd'
-release = '0.1.1'
+try:
+    release = metadata.version('epiccli-lite')
+except metadata.PackageNotFoundError:
+    release = 'dev'
+version = '.'.join(release.split('.')[:2])
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -3,6 +3,7 @@ import os
 import json
 import boto3
 from botocore.exceptions import ClientError
+import platform
 from getpass import getpass
 from .user import create_user as createUser, delete_user as deleteUser
 from .project import get_project_details, update_spend_limit
@@ -112,9 +113,18 @@ def init(project_name):
 
     This command authenticates the user with AWS Cognito using the stored
     username and password for the specified project. Upon successful
-    authentication, it prints a series of `export` commands containing the
-    API token and active project name. These commands can be run in the shell
-    to configure the current session for subsequent API calls.
+    authentication, it prints shell commands to set environment variables
+    containing the API token and active project name.
+
+    To apply these variables to your current session, you should wrap this
+    command in `eval` (for bash/zsh) or pipe it to `Invoke-Expression`
+    (for PowerShell).
+
+    Example (bash/zsh):
+        eval "$(epic init epic-project)"
+
+    Example (PowerShell):
+        epic init epic-project | Invoke-Expression
 
     Args:
         project_name (str): The name of the project to initialize.
@@ -145,10 +155,20 @@ def init(project_name):
 
         id_token = response['AuthenticationResult']['IdToken']
 
+        is_windows = platform.system() == 'Windows'
+
         click.echo("\n# Authentication successful!")
-        click.echo("# To configure your current shell session, run the following commands:")
-        click.echo(f"export EPIC_API_TOKEN='{id_token}'")
-        click.echo(f"export EPIC_ACTIVE_PROJECT='{project_name}'")
+        if is_windows:
+            click.echo("# To configure your current PowerShell session, pipe the output of this command to Invoke-Expression:")
+            click.echo(f'# epic init {project_name} | Invoke-Expression')
+            click.echo(f'$env:EPIC_API_TOKEN="{id_token}"')
+            click.echo(f'$env:EPIC_ACTIVE_PROJECT="{project_name}"')
+        else:
+            click.echo("# To configure your current shell session, run the following command:")
+            click.echo(f'# eval "$(epic init {project_name})"')
+            click.echo(f"export EPIC_API_TOKEN='{id_token}'")
+            click.echo(f"export EPIC_ACTIVE_PROJECT='{project_name}'")
+
         click.echo("\n# Note: These variables are only set for the current shell session.")
         click.echo("# You will need to run `epic init` again for new sessions.")
 
