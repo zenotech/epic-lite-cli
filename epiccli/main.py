@@ -365,6 +365,29 @@ def create_job_command(job_json_file, project_name):
             definition.
         project_name (str, optional): The name of the project. Defaults to the
             active project.
+
+    Example `job.json` file:
+
+    .. code-block:: json
+
+        {
+            "name": "Test Job Array",
+            "jobs": [{
+                "name": "Test OpenFOAM Job",
+                "spec": {
+                    "app_code": "my-openfoam",
+                    "tasks": [{"reference": "main-task", 
+                                "partitions": 16, 
+                                "runtime": 1, 
+                                "task_distribution": "core",
+                                "memory_gb": 16
+                            }]
+                },
+                "input_data": {"path": "HPC_motorbike/Small/v8"},
+                "app_options": {"base_command": ". /opt/openfoam8/etc/bashrc && ./Allrun"},
+                "cluster": {"queue_code": "batch-single-node"}
+            }]
+        }
     """
     project_name = get_active_project(project_name)
     if not project_name:
