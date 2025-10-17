@@ -37,7 +37,7 @@ def create_user(username, email, password, project_config, project_name):
 
         if response.status_code == 201:
             user_json = {
-                "project_name": f"{username}-project",
+                "project_name": f"{project_name}",
                 "username": username,
                 "password": password,
                 "UserPoolClientId": project_config['user_pool_client_id'],
