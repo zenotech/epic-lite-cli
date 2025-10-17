@@ -64,7 +64,8 @@ def list_jobs(project_config):
     try:
         response = requests.get(f"{api_url}/job/", headers=headers)
         response.raise_for_status()
-        jobs = response.json()
+        response_data = response.json()
+        jobs = response_data.get('results', [])
 
         if not jobs:
             click.echo("No jobs found.")
@@ -72,7 +73,13 @@ def list_jobs(project_config):
 
         click.echo("Current Jobs:")
         for job in jobs:
-            click.echo(f"  ID: {job.get('id')} | Name: {job.get('name')} | Status: {job.get('status')}")
+            if isinstance(job, dict):
+                job_id = job.get('uuid', 'N/A')
+                name = job.get('name', 'N/A')
+                status = job.get('status', 'N/A')
+                click.echo(f"  ID: {job_id} | Name: {name} | Status: {status}")
+            else:
+                click.echo(f"  Warning: Received malformed job entry: {job}")
 
     except requests.exceptions.RequestException as e:
         click.echo(f"Error listing jobs: {e}")

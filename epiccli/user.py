@@ -55,6 +55,9 @@ def create_user(username, email, password, project_config, project_name):
             click.echo(f"Configuration file '{output_filename}' has been generated.")
             click.echo(f"Use it to configure the EPIC CLI: epic config {output_filename}")
 
+        elif response.status_code == 400:
+            error_details = response.json()
+            click.echo(f"Error: {error_details.get('error', 'Bad Request')}")
         elif response.status_code == 409:
             click.echo(f"User '{username}' may already exist.")
         else:
@@ -62,8 +65,6 @@ def create_user(username, email, password, project_config, project_name):
 
     except requests.exceptions.RequestException as e:
         click.echo(f"Error creating user: {e}")
-        if e.response:
-            click.echo(f"Response: {e.response.text}")
 
 
 def delete_user(username, project_config):
