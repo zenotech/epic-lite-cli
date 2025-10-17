@@ -40,7 +40,13 @@ def create_job(job_json_file, project_config):
     except json.JSONDecodeError:
         click.echo(f"Error: Invalid JSON in {job_json_file}")
     except requests.exceptions.RequestException as e:
-        click.echo(f"Error creating job: {e}")
+        try:
+            error_details = e.response.json()
+            click.echo(f"Error: {error_details.get('error', 'Unknown API error')}")
+            if 'detail' in error_details:
+                click.echo(f"Detail: {error_details['detail']}")
+        except (json.JSONDecodeError, AttributeError):
+            click.echo(f"Error creating job: {e}")
 
 def list_jobs(project_config):
     """Lists all jobs for the current user.
@@ -82,7 +88,13 @@ def list_jobs(project_config):
                 click.echo(f"  Warning: Received malformed job entry: {job}")
 
     except requests.exceptions.RequestException as e:
-        click.echo(f"Error listing jobs: {e}")
+        try:
+            error_details = e.response.json()
+            click.echo(f"Error: {error_details.get('error', 'Unknown API error')}")
+            if 'detail' in error_details:
+                click.echo(f"Detail: {error_details['detail']}")
+        except (json.JSONDecodeError, AttributeError):
+            click.echo(f"Error listing jobs: {e}")
     except json.JSONDecodeError:
         click.echo("Error: Failed to decode JSON response from server.")
 
@@ -115,7 +127,13 @@ def get_job(job_id, project_config):
         click.echo(json.dumps(job, indent=4))
 
     except requests.exceptions.RequestException as e:
-        click.echo(f"Error getting job details: {e}")
+        try:
+            error_details = e.response.json()
+            click.echo(f"Error: {error_details.get('error', 'Unknown API error')}")
+            if 'detail' in error_details:
+                click.echo(f"Detail: {error_details['detail']}")
+        except (json.JSONDecodeError, AttributeError):
+            click.echo(f"Error getting job details: {e}")
     except json.JSONDecodeError:
         click.echo("Error: Failed to decode JSON response from server.")
 
@@ -150,4 +168,57 @@ def cancel_job(job_id, project_config):
             click.echo(response.text)
 
     except requests.exceptions.RequestException as e:
-        click.echo(f"Error canceling job: {e}")
+        try:
+            error_details = e.response.json()
+            click.echo(f"Error: {error_details.get('error', 'Unknown API error')}")
+            if 'detail' in error_details:
+                click.echo(f"Detail: {error_details['detail']}")
+        except (json.JSONDecodeError, AttributeError):
+            click.echo(f"Error canceling job: {e}")
+
+def tail_job(job_id, project_config):
+    """Tails the logs of a specific job.
+
+    This function retrieves the latest log entries for a single job by its ID
+    from the /job/{job_id}/tail/ endpoint. The log messages are then printed
+    to the console.
+
+    Args:
+        job_id (int): The unique identifier for the job.
+        project_config (dict): A dictionary containing the configuration for the
+            active project, including the 'epic_api_url'.
+    """
+    token = os.environ.get("EPIC_API_TOKEN")
+    if not token:
+        click.echo("Error: EPIC_API_TOKEN environment variable not set. Please run 'epic init' first.")
+        return
+
+    headers = {"Authorization": f"Bearer {token}"}
+    api_url = project_config['epic_api_url']
+
+    try:
+        response = requests.get(f"{api_url}/job/{job_id}/tail/", headers=headers)
+        response.raise_for_status()
+        log_data = response.json()
+        log_events = log_data.get('logs', [])
+
+        if not log_events:
+            click.echo(f"No logs found for job {job_id}.")
+            return
+
+        click.echo(f"Logs for job {job_id}:")
+        for log_event in log_events:
+            timestamp = log_event.get('timestamp')
+            message = log_event.get('message')
+            click.echo(f"[{timestamp}] {message}")
+
+    except requests.exceptions.RequestException as e:
+        try:
+            error_details = e.response.json()
+            click.echo(f"Error: {error_details.get('error', 'Unknown API error')}")
+            if 'detail' in error_details:
+                click.echo(f"Detail: {error_details['detail']}")
+        except (json.JSONDecodeError, AttributeError):
+            click.echo(f"Error getting job logs: {e}")
+    except json.JSONDecodeError:
+        click.echo("Error: Failed to decode JSON response from server.")
