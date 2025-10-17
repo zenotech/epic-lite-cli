@@ -9,7 +9,7 @@ from .user import create_user as createUser, delete_user as deleteUser
 from .project import get_project_details, update_spend_limit
 from .billing import get_billing_info
 from .data import get_data_keys
-from .job import create_job, list_jobs, get_job, cancel_job
+from .job import create_job, list_jobs, get_job, cancel_job, tail_job
 
 CONFIG_DIR = os.path.expanduser("~/.epic")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config")
@@ -461,6 +461,27 @@ def cancel_job_command(job_id, project_name):
         return
     project_config = config[project_name]
     cancel_job(job_id, project_config)
+
+@job.command(name="tail")
+@click.argument('job_id')
+@click.argument('project_name', required=False)
+def tail_job_command(job_id, project_name):
+    """Tails the logs of a specific job.
+
+    Args:
+        job_id (int): The unique identifier for the job.
+        project_name (str, optional): The name of the project. Defaults to the active project.
+    """
+    project_name = get_active_project(project_name)
+    if not project_name:
+        return
+
+    config = get_config()
+    if project_name not in config:
+        click.echo(f"Error: Project configuration '{project_name}' not found. Please configure it first using 'epic config'.")
+        return
+    project_config = config[project_name]
+    tail_job(job_id, project_config)
 
 if __name__ == '__main__':
     cli()
