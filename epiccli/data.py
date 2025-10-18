@@ -32,7 +32,7 @@ def get_data_keys(project_config):
         click.echo(f"export AWS_ACCESS_KEY_ID='{keys.get('aws_access_key_id')}'")
         click.echo(f"export AWS_SECRET_ACCESS_KEY='{keys.get('aws_secret_access_key')}'")
         click.echo(f"export AWS_SESSION_TOKEN='{keys.get('aws_session_token')}'")
-        click.echo(f"export EPIC_S3_BUCKET='{project_config.get('data_bucket_name')}'")
+        click.echo(f"export EPIC_S3_BUCKET='s3://{project_config.get('data_bucket_name')}'")
         click.echo(f"export AWS_REGION='{project_config.get('region')}'")
 
     except requests.exceptions.RequestException as e:

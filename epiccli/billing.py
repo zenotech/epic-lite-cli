@@ -29,8 +29,6 @@ def get_billing_info(project_config):
         billing_data = response.json()
 
         click.echo("Billing Information:")
-        # The actual keys in the response might be different, this is a guess.
-        # Based on `src/billing.py`, it seems to return 'monthly_spend' and 'limit'.
         monthly_spend = billing_data.get('monthly_spend', 'N/A')
         limit = billing_data.get('limit', 'N/A')
 
