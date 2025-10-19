@@ -1,0 +1,4 @@
+Flask
+pywebview
+boto3
+requests

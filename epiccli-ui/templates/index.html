@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPIC-UI - Select Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="center-panel">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="EPIC Logo" style="height: 50px; margin-bottom: 20px;">
+                <h1>Select a Project</h1>
+                {% if projects %}
+                    <ul class="project-list">
+                        {% for project in projects %}
+                            <li><a href="{{ url_for('select_project', project_name=project) }}">{{ project }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No projects found. Please configure a project using the `epiccli`.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

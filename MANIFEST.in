@@ -1,1 +1,4 @@
 include epiccli/requirements.txt
+include epiccli-ui/requirements.txt
+recursive-include epiccli-ui/templates *
+recursive-include epiccli-ui/static *

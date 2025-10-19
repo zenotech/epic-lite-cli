@@ -1,7 +1,12 @@
 from setuptools import setup, find_packages
 
 with open('epiccli/requirements.txt') as f:
-    required = f.read().splitlines()
+    epic_cli_required = f.read().splitlines()
+
+with open('epiccli-ui/requirements.txt') as f:
+    epic_ui_required = f.read().splitlines()
+
+required = list(set(epic_cli_required + epic_ui_required))
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -21,6 +26,7 @@ setup(
     entry_points={
         'console_scripts': [
             'epic=epiccli.main:cli',
+            'epic-ui=epiccli.ui:main'
         ],
     },
     classifiers=[
