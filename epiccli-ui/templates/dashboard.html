@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPIC-UI - {{ project_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='1') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <button id="menu-toggle" class="menu-toggle-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <img src="{{ url_for('static', filename='logo2.png') }}" alt="EPIC Logo" class="header-logo">
+        </div>
+        <h1>{{ project_name }}</h1>
+        <div></div>
+    </div>
+    <div id="dashboard-container" class="dashboard-container">
+        <div class="sidebar">
+            <h3>Menu</h3>
+            <a href="{{ url_for('index') }}">Change Project</a>
+        </div>
+        <div class="dashboard-main">
+            <div class="panel">
+                <h2>Billing Information</h2>
+                <div id="billing-info">
+                    <p><strong>Spend Limit:</strong> <span id="spend-limit">Loading...</span></p>
+                    <p><strong>Current Monthly Spend:</strong> <span id="current-spend">Loading...</span></p>
+                </div>
+            </div>
+            <div class="panel">
+                <h2>Jobs</h2>
+                <button id="refresh-jobs">Refresh</button>
+                <div id="job-list">
+                    <p>Loading...</p>
+                </div>
+            </div>
+            <div class="panel">
+                <h2>S3 Browser</h2>
+                <div id="s3-browser">
+                    <div id="s3-breadcrumbs"></div>
+                    <hr>
+                    <input type="file" id="s3-upload-input" multiple style="display: none;">
+                    <button id="s3-upload-button"><i class="fas fa-upload"></i> Upload</button>
+                    <button id="s3-refresh-button"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <hr>
+                    <div id="s3-file-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let current_prefix = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBillingInfo();
+            loadJobs();
+            loadS3Browser();
+
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('dashboard-container').classList.toggle('sidebar-collapsed');
+            });
+
+            document.getElementById('refresh-jobs').addEventListener('click', loadJobs);
+            document.getElementById('s3-upload-button').addEventListener('click', () => document.getElementById('s3-upload-input').click());
+            document.getElementById('s3-upload-input').addEventListener('change', handleS3Upload);
+            document.getElementById('s3-refresh-button').addEventListener('click', () => loadS3Browser(current_prefix));
+        });
+
+        function loadBillingInfo() {
+            fetch('/api/billing')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('billing-info').innerHTML = `<p style="color: red;">${data.error}</p>`;
+                        return;
+                    }
+                    document.getElementById('spend-limit').textContent = data.spend_limit.currency_symbol + data.spend_limit.amount;
+                    document.getElementById('current-spend').textContent = data.current_spend.currency_symbol + data.current_spend.amount;
+                })
+                .catch(error => {
+                    console.error('Error fetching billing info:', error);
+                    document.getElementById('billing-info').innerHTML = `<p style="color: red;">An error occurred.</p>`;
+                });
+        }
+
+        function loadJobs() {
+            const jobListDiv = document.getElementById('job-list');
+            jobListDiv.innerHTML = '<p>Loading...</p>';
+
+            fetch('/api/jobs')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        jobListDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                        return;
+                    }
+
+                    if (data.length === 0) {
+                        jobListDiv.innerHTML = '<p>No jobs found.</p>';
+                        return;
+                    }
+
+                    let table = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>UUID</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    data.forEach(job => {
+                        const isCancelable = ['RUNNING', 'PENDING', 'SUBMITTED', 'RUNNABLE', 'STARTING'].includes(job.status);
+                        table += `
+                            <tr class="job-ticket">
+                                <td>${job.id}</td>
+                                <td>${job.uuid}</td>
+                                <td>${job.status}</td>
+                                <td>${new Date(job.created_at).toLocaleString()}</td>
+                                <td>
+                                    <button onclick="cancelJob('${job.uuid}')" ${isCancelable ? '' : 'disabled'}>Cancel</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    table += '</tbody></table>';
+                    jobListDiv.innerHTML = table;
+                })
+                .catch(error => {
+                    console.error('Error fetching jobs:', error);
+                    jobListDiv.innerHTML = `<p style="color: red;">An error occurred.</p>`;
+                });
+        }
+
+        function cancelJob(jobUuid) {
+            if (!confirm('Are you sure you want to cancel this job?')) {
+                return;
+            }
+
+            fetch(`/api/cancel_job/${jobUuid}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(`Error: ${data.error}`);
+                    } else {
+                        alert(data.message);
+                        loadJobs();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cancelling job:', error);
+                    alert('An error occurred while cancelling the job.');
+                });
+        }
+
+        // S3 Browser Functions
+        function loadS3Browser(prefix = '') {
+            current_prefix = prefix;
+            const fileListDiv = document.getElementById('s3-file-list');
+            fileListDiv.innerHTML = '<p>Loading files...</p>';
+
+            updateBreadcrumbs(prefix);
+
+            fetch(`/api/s3/list?prefix=${prefix}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        fileListDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                        return;
+                    }
+                    renderS3Files(data.folders, data.files);
+                })
+                .catch(error => {
+                    console.error('Error fetching S3 file list:', error);
+                    fileListDiv.innerHTML = `<p style="color: red;">An error occurred.</p>`;
+                });
+        }
+
+        function updateBreadcrumbs(prefix) {
+            const breadcrumbsDiv = document.getElementById('s3-breadcrumbs');
+            breadcrumbsDiv.innerHTML = '';
+            let path = '';
+            const segments = prefix.split('/').filter(Boolean);
+
+            const rootLink = document.createElement('a');
+            rootLink.href = '#';
+            rootLink.textContent = 'Bucket Root';
+            rootLink.onclick = (e) => { e.preventDefault(); loadS3Browser(''); };
+            breadcrumbsDiv.appendChild(rootLink);
+
+            segments.forEach((segment, index) => {
+                path += segment + '/';
+                const separator = document.createTextNode(' / ');
+                breadcrumbsDiv.appendChild(separator);
+                const link = document.createElement('a');
+                link.href = '#';
+                link.textContent = segment;
+                const currentPath = path;
+                link.onclick = (e) => { e.preventDefault(); loadS3Browser(currentPath); };
+                breadcrumbsDiv.appendChild(link);
+            });
+        }
+
+        function renderS3Files(folders, files) {
+            const fileListDiv = document.getElementById('s3-file-list');
+            let table = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Size</th>
+                            <th>Last Modified</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            folders.forEach(folder => {
+                const folderName = folder.replace(current_prefix, '').replace('/', '');
+                table += `
+                    <tr>
+                        <td><a href="#" onclick="event.preventDefault(); loadS3Browser('${folder}')">📁 ${folderName}</a></td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>
+                            <button class="icon-button" onclick="renameFolder('${folder}')" title="Rename"><i class="fas fa-edit"></i></button>
+                            <button class="icon-button" onclick="copyFolder('${folder}')" title="Copy"><i class="fas fa-copy"></i></button>
+                            <button class="icon-button" onclick="deleteFolder('${folder}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            files.forEach(file => {
+                const fileName = file.key.replace(current_prefix, '');
+                table += `
+                    <tr>
+                        <td>${fileName}</td>
+                        <td>${formatBytes(file.size)}</td>
+                        <td>${new Date(file.last_modified).toLocaleString()}</td>
+                        <td>
+                            <button class="icon-button" onclick="viewFile('${file.key}')" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="icon-button" onclick="downloadFile('${file.key}')" title="Download"><i class="fas fa-download"></i></button>
+                            <button class="icon-button" onclick="renameFile('${file.key}')" title="Rename"><i class="fas fa-edit"></i></button>
+                            <button class="icon-button" onclick="copyFile('${file.key}')" title="Copy"><i class="fas fa-copy"></i></button>
+                            <button class="icon-button" onclick="deleteFile('${file.key}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            table += '</tbody></table>';
+            fileListDiv.innerHTML = table;
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function handleS3Upload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+
+            for (const file of files) {
+                const key = current_prefix + file.name;
+
+                fetch('/api/s3/presigned-url/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: key })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    return fetch(data.url, { method: 'PUT', body: file });
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Upload failed.');
+                    alert(`Successfully uploaded ${file.name}`);
+                    loadS3Browser(current_prefix);
+                })
+                .catch(error => {
+                    console.error('Upload error:', error);
+                    alert(`Failed to upload ${file.name}: ${error.message}`);
+                });
+            }
+            // Reset input for next upload
+            event.target.value = '';
+        }
+
+        async function downloadFile(key) {
+            try {
+                const response = await fetch('/api/s3/presigned-url/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: key })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                const url = data.url;
+                const savePath = await window.pywebview.api.save_file_dialog(key.split('/').pop() || 'download');
+
+                if (savePath) {
+                    const result = await window.pywebview.api.download_file(url, savePath);
+                    if (result.status === 'success') {
+                        alert(`File downloaded successfully to ${result.path}`);
+                    } else {
+                        alert(`Download failed: ${result.message}`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error downloading file:', error);
+                alert('Could not get download link.');
+            }
+        }
+
+        function deleteFile(key) {
+            if (!confirm(`Are you sure you want to delete ${key}?`)) return;
+
+            fetch('/api/s3/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: key })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                alert(data.message);
+                loadS3Browser(current_prefix);
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                alert(`Failed to delete file: ${error.message}`);
+            });
+        }
+
+        function renameFile(oldKey) {
+            const newKey = prompt('Enter new path for the file:', oldKey);
+            if (!newKey) return;
+
+            fetch('/api/s3/rename', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ old_key: oldKey, new_key: newKey })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                alert(data.message);
+                loadS3Browser(current_prefix);
+            })
+            .catch(error => {
+                console.error('Rename error:', error);
+                alert(`Failed to rename file: ${error.message}`);
+            });
+        }
+
+        function copyFile(sourceKey) {
+            const destKey = prompt('Enter new path for the copy:', sourceKey + '_copy');
+            if (!destKey) return;
+
+            fetch('/api/s3/copy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source_key: sourceKey, destination_key: destKey })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                alert(data.message);
+                loadS3Browser(current_prefix);
+            })
+            .catch(error => {
+                console.error('Copy error:', error);
+                alert(`Failed to copy file: ${error.message}`);
+            });
+        }
+
+        function deleteFolder(prefix) {
+            if (!confirm(`Are you sure you want to delete the folder ${prefix} and all its contents?`)) return;
+
+            fetch('/api/s3/delete-folder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prefix: prefix })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                alert(data.message);
+                loadS3Browser(current_prefix.startsWith(prefix) ? '' : current_prefix);
+            })
+            .catch(error => {
+                console.error('Delete folder error:', error);
+                alert(`Failed to delete folder: ${error.message}`);
+            });
+        }
+
+        function renameFolder(oldPrefix) {
+            const newPrefix = prompt('Enter new name for the folder:', oldPrefix);
+            if (!newPrefix) return;
+
+            fetch('/api/s3/rename-folder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ old_prefix: oldPrefix, new_prefix: newPrefix })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                alert(data.message);
+                loadS3Browser(current_prefix.startsWith(oldPrefix) ? '' : current_prefix);
+            })
+            .catch(error => {
+                console.error('Rename folder error:', error);
+                alert(`Failed to rename folder: ${error.message}`);
+            });
+        }
+
+        function copyFolder(sourceFolder) {
+            const destFolder = prompt('Enter new path for the copy:', sourceFolder + '_copy');
+            if (!destFolder) return;
+
+            fetch('/api/s3/copy-folder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source_folder: sourceFolder, destination_folder: destFolder })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                alert(data.message);
+                loadS3Browser(current_prefix);
+            })
+            .catch(error => {
+                console.error('Copy folder error:', error);
+                alert(`Failed to copy folder: ${error.message}`);
+            });
+        }
+
+        async function viewFile(key) {
+            const modal = document.getElementById('file-viewer-modal');
+            const fileContent = document.getElementById('file-content');
+            const closeButton = document.querySelector('.close-button');
+
+            fileContent.textContent = 'Loading...';
+            modal.style.display = 'block';
+
+            try {
+                const response = await fetch(`/api/s3/view/${key}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                const content = await response.text();
+                fileContent.textContent = content;
+            } catch (error) {
+                console.error('View file error:', error);
+                fileContent.textContent = `Failed to load file: ${error.message}`;
+            }
+
+            closeButton.onclick = function() {
+                modal.style.display = 'none';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        }
+
+    </script>
+    <div id="file-viewer-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <pre id="file-content"></pre>
+        </div>
+    </div>
+</body>
+</html>
