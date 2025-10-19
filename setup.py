@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 with open('epiccli/requirements.txt') as f:
     epic_cli_required = f.read().splitlines()
 
-with open('epiccli-ui/requirements.txt') as f:
+with open('epiccli_ui/requirements.txt') as f:
     epic_ui_required = f.read().splitlines()
 
 required = list(set(epic_cli_required + epic_ui_required))
