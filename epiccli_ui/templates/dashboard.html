@@ -127,9 +127,10 @@
                                 <td>${job.id}</td>
                                 <td>${job.uuid}</td>
                                 <td>${job.status}</td>
-                                <td>${new Date(job.created_at).toLocaleString()}</td>
+                                <td>${new Date(job.submitted_at).toLocaleString()}</td>
                                 <td>
-                                    <button onclick="cancelJob('${job.uuid}')" ${isCancelable ? '' : 'disabled'}>Cancel</button>
+                                    <button class="icon-button" onclick="viewJobLogs('${job.uuid}')" title="View Logs"><i class="fas fa-eye"></i></button>
+                                    <button class="icon-button" onclick="cancelJob('${job.uuid}')" ${isCancelable ? '' : 'disabled'} title="Cancel Job"><i class="fas fa-times-circle"></i></button>
                                 </td>
                             </tr>
                         `;
@@ -162,6 +163,41 @@
                     console.error('Error cancelling job:', error);
                     alert('An error occurred while cancelling the job.');
                 });
+        }
+
+        async function viewJobLogs(jobUuid) {
+            const modal = document.getElementById('file-viewer-modal');
+            const fileContentDiv = document.getElementById('file-content');
+            const closeButton = document.querySelector('.close-button');
+
+            fileContentDiv.innerHTML = '<p>Loading logs...</p>';
+            modal.style.display = 'block';
+
+            try {
+                const response = await fetch(`/api/job/${jobUuid}/tail`);
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'Failed to parse error JSON.' }));
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                const logs = data.logs.map(log => log.message).join('\n');
+                fileContentDiv.innerHTML = `<pre>${escapeHtml(logs)}</pre>`;
+            } catch (error) {
+                console.error('View logs error:', error);
+                fileContentDiv.innerHTML = `<p style="color: red;">Failed to load logs: ${error.message}</p>`;
+            }
+
+            closeButton.onclick = function() {
+                modal.style.display = 'none';
+                fileContentDiv.innerHTML = '';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    fileContentDiv.innerHTML = '';
+                }
+            }
         }
 
         // S3 Browser Functions
