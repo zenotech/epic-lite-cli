@@ -40,7 +40,7 @@ def main():
     api = Api(window)
     window.expose(api.save_file_dialog)
     window.expose(api.download_file)
-    webview.start(debug=False)
+    webview.start(debug=True)
 
 if __name__ == '__main__':
     main()

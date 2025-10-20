@@ -143,6 +143,23 @@ def api_cancel_job(job_uuid):
     except Exception as e:
         return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
 
+@app.route('/api/job/<job_uuid>/tail')
+def api_job_tail(job_uuid):
+    if 'api_token' not in session:
+        return jsonify({"error": "Not logged in"}), 401
+
+    api_url = session.get('api_url')
+    headers = {'Authorization': f'Bearer {session["api_token"]}'}
+    url = f'{api_url}/job/{job_uuid}/tail'
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return jsonify(response.json())
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"API request failed: {e}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
+
 # S3 Helper
 def get_s3_client():
     if 'api_token' not in session:
