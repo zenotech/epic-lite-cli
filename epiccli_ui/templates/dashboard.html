@@ -6,6 +6,7 @@
     <title>EPIC-UI - {{ project_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='1') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
     <div class="header">
@@ -108,11 +109,11 @@
                     }
 
                     let table = `
-                        <table>
+                        <table id="jobs-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>UUID</th>
+                                    <th>Name</th>
+                                    <th>Submitted By</th>
                                     <th>Status</th>
                                     <th>Created</th>
                                     <th>Action</th>
@@ -124,8 +125,8 @@
                         const isCancelable = ['RUNNING', 'PENDING', 'SUBMITTED', 'RUNNABLE', 'STARTING'].includes(job.status);
                         table += `
                             <tr class="job-ticket">
-                                <td>${job.id}</td>
-                                <td>${job.uuid}</td>
+                                <td title="${job.uuid}">${job.name}</td>
+                                <td>${job.submitted_by}</td>
                                 <td>${job.status}</td>
                                 <td>${new Date(job.submitted_at).toLocaleString()}</td>
                                 <td>
@@ -137,11 +138,53 @@
                     });
                     table += '</tbody></table>';
                     jobListDiv.innerHTML = table;
+                    $('#jobs-table').DataTable({
+                        "order": [[ 3, "desc" ]]
+                    });
                 })
                 .catch(error => {
                     console.error('Error fetching jobs:', error);
                     jobListDiv.innerHTML = `<p style="color: red;">An error occurred.</p>`;
                 });
+        }
+
+        async function viewJobLogs(jobUuid) {
+            const modal = document.getElementById('file-viewer-modal');
+            const fileContentDiv = document.getElementById('file-content');
+            const closeButton = document.querySelector('.close-button');
+
+            fileContentDiv.innerHTML = '<p>Loading logs...</p>';
+            modal.style.display = 'block';
+
+            try {
+                const response = await fetch(`/api/job/${jobUuid}/tail`);
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'Failed to parse error JSON.' }));
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.logs && Array.isArray(data.logs)) {
+                    const logs = data.logs.map(log => log.message).join('\n');
+                    fileContentDiv.innerHTML = `<pre>${escapeHtml(logs)}</pre>`;
+                } else {
+                    fileContentDiv.innerHTML = '<p>No logs available or in an unexpected format.</p>';
+                }
+            } catch (error) {
+                console.error('View logs error:', error);
+                fileContentDiv.innerHTML = `<p style="color: red;">Failed to load logs: ${error.message}</p>`;
+            }
+
+            closeButton.onclick = function() {
+                modal.style.display = 'none';
+                fileContentDiv.innerHTML = '';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    fileContentDiv.innerHTML = '';
+                }
+            }
         }
 
         function cancelJob(jobUuid) {
@@ -552,5 +595,7 @@
             <div id="file-content"></div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 </body>
 </html>
