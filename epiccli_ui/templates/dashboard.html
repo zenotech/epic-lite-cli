@@ -122,7 +122,7 @@
                             <tbody>
                     `;
                     data.forEach(job => {
-                        const isCancelable = ['RUNNING', 'PENDING', 'SUBMITTED', 'RUNNABLE', 'STARTING'].includes(job.status);
+                        const isCancelable = ['RUNNING', 'PENDING', 'SUBMITTED', 'RUNNABLE', 'STARTING', 'PROVISIONING'].includes(job.status);
                         table += `
                             <tr class="job-ticket">
                                 <td title="${job.uuid}">${job.name}</td>
