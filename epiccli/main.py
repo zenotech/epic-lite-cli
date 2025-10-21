@@ -10,6 +10,7 @@ from .project import get_project_details, update_spend_limit
 from .billing import get_billing_info
 from .data import get_data_keys
 from .job import create_job, list_jobs, get_job, cancel_job, tail_job
+from .catalog import list_applications as list_catalog_applications, list_instances as list_catalog_instances
 
 CONFIG_DIR = os.path.expanduser("~/.epic")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config")
@@ -353,6 +354,68 @@ def keys(project_name):
 def job():
     """Commands for managing jobs."""
     pass
+
+@cli.group()
+def catalog():
+    """
+    Commands for interacting with the EPIC catalog.
+
+    The catalog provides information about available applications and compute
+    resources (instance types) that can be used to run jobs.
+    """
+    pass
+
+@catalog.command(name="list-applications")
+@click.argument('project_name', required=False)
+def list_applications_command(project_name):
+    """
+    Lists available applications in the catalog.
+
+    This command retrieves and displays a list of all HPC applications that
+    can be run through the EPIC platform. The output includes the application's
+    display name, a brief description, and the unique ``app_code`` used when
+    submitting jobs.
+
+    :param project_name: The name of the project to use. Defaults to the active project.
+    """
+    project_name = get_active_project(project_name)
+    if not project_name:
+        return
+
+    config = get_config()
+    if project_name not in config:
+        click.echo(f"Error: Project configuration '{project_name}' not found. Please configure it first using 'epic config'.")
+        return
+    project_config = config[project_name]
+    list_catalog_applications(project_config)
+
+@catalog.command(name="list-instances")
+@click.argument('project_name', required=False)
+def list_instances_command(project_name):
+    """
+    Lists available compute instance types in the catalog.
+
+    This command retrieves and displays a list of the AWS EC2 instance types
+    that are available for running jobs in the current deployment. The output
+    includes the instance type name, the number of vCPUs, and the available
+    memory in GB.
+
+    The list of available instances is configurable by the system administrator
+    and is validated against the instances available in the AWS region where
+    the EPIC API is deployed.
+
+    :param project_name: The name of the project to use. Defaults to the active project.
+    """
+    project_name = get_active_project(project_name)
+    if not project_name:
+        return
+
+    config = get_config()
+    if project_name not in config:
+        click.echo(f"Error: Project configuration '{project_name}' not found. Please configure it first using 'epic config'.")
+        return
+    project_config = config[project_name]
+    list_catalog_instances(project_config)
 
 @job.command(name="create")
 @click.argument('job_json_file', type=click.Path(exists=True))
