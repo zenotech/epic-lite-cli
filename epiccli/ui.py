@@ -3,6 +3,7 @@ import sys
 import webview
 import threading
 import requests
+import argparse
 from epiccli_ui.app import app
 
 class Api:
@@ -25,6 +26,10 @@ class Api:
             return {"status": "error", "message": str(e)}
 
 def main():
+    parser = argparse.ArgumentParser(description='EPIC-UI')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode.')
+    args = parser.parse_args()
+
     # When running as a bundled executable, the paths to templates and static folders need to be adjusted.
     if getattr(sys, 'frozen', False):
         template_folder = os.path.join(sys._MEIPASS, 'templates')
@@ -36,11 +41,11 @@ def main():
     t.daemon = True
     t.start()
 
-    window = webview.create_window('EPIC-UI', 'http://127.0.0.1:2395', width=1200, height=800)
+    window = webview.create_window('EPIC-UI', 'http://127.0.0.1:2395', width=1200, height=800, text_select=True)
     api = Api(window)
     window.expose(api.save_file_dialog)
     window.expose(api.download_file)
-    webview.start(debug=True)
+    webview.start(debug=args.debug)
 
 if __name__ == '__main__':
     main()
