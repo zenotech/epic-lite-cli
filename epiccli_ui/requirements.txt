@@ -2,3 +2,4 @@ Flask
 pywebview
 boto3
 requests
+PyQt5; sys_platform == "linux"

@@ -192,19 +192,38 @@ def api_s3_rename_folder():
     data = request.get_json()
     old_prefix = data.get('old_prefix')
     new_prefix = data.get('new_prefix')
+
     if not old_prefix or not new_prefix:
         return jsonify({"error": "Missing old_prefix or new_prefix"}), 400
+    if not old_prefix.endswith('/'):
+        old_prefix += '/'
+    if not new_prefix.endswith('/'):
+        new_prefix += '/'
+    if old_prefix == new_prefix:
+        return jsonify({"message": "Source and destination are the same."})
 
     try:
         s3_client, bucket_name = get_s3_client()
-        # List all objects with the given prefix
-        for obj in s3_client.list_objects_v2(Bucket=bucket_name, Prefix=old_prefix).get('Contents', []):
-            old_key = obj['Key']
-            new_key = old_key.replace(old_prefix, new_prefix, 1)
-            # Copy object
-            s3_client.copy_object(Bucket=bucket_name, CopySource={'Bucket': bucket_name, 'Key': old_key}, Key=new_key)
-            # Delete old object
-            s3_client.delete_object(Bucket=bucket_name, Key=old_key)
+        paginator = s3_client.get_paginator('list_objects_v2')
+        objects_to_delete = []
+
+        for page in paginator.paginate(Bucket=bucket_name, Prefix=old_prefix):
+            for obj in page.get('Contents', []):
+                old_key = obj['Key']
+                if old_key.startswith(old_prefix):
+                    relative_key = old_key[len(old_prefix):]
+                    new_key = f"{new_prefix}{relative_key}"
+                    s3_client.copy_object(Bucket=bucket_name, CopySource={'Bucket': bucket_name, 'Key': old_key}, Key=new_key)
+                    objects_to_delete.append({'Key': old_key})
+
+        if objects_to_delete:
+            # S3 delete_objects can handle up to 1000 keys at a time.
+            for i in range(0, len(objects_to_delete), 1000):
+                s3_client.delete_objects(
+                    Bucket=bucket_name,
+                    Delete={'Objects': objects_to_delete[i:i+1000]}
+                )
+
         return jsonify({"message": f"Successfully renamed folder {old_prefix} to {new_prefix}"})
     except ClientError as e:
         return jsonify({"error": f"S3 Error: {e.response['Error']['Message']}"}), 500
@@ -216,17 +235,28 @@ def api_s3_copy_folder():
     data = request.get_json()
     source_folder = data.get('source_folder')
     destination_folder = data.get('destination_folder')
+
     if not source_folder or not destination_folder:
         return jsonify({"error": "Missing source_folder or destination_folder"}), 400
+    if not source_folder.endswith('/'):
+        source_folder += '/'
+    if not destination_folder.endswith('/'):
+        destination_folder += '/'
+    if source_folder == destination_folder:
+        return jsonify({"message": "Source and destination are the same."})
 
     try:
         s3_client, bucket_name = get_s3_client()
-        # List all objects with the given prefix
-        for obj in s3_client.list_objects_v2(Bucket=bucket_name, Prefix=source_folder).get('Contents', []):
-            old_key = obj['Key']
-            new_key = old_key.replace(source_folder, destination_folder, 1)
-            # Copy object
-            s3_client.copy_object(Bucket=bucket_name, CopySource={'Bucket': bucket_name, 'Key': old_key}, Key=new_key)
+        paginator = s3_client.get_paginator('list_objects_v2')
+
+        for page in paginator.paginate(Bucket=bucket_name, Prefix=source_folder):
+            for obj in page.get('Contents', []):
+                old_key = obj['Key']
+                if old_key.startswith(source_folder):
+                    relative_key = old_key[len(source_folder):]
+                    new_key = f"{destination_folder}{relative_key}"
+                    s3_client.copy_object(Bucket=bucket_name, CopySource={'Bucket': bucket_name, 'Key': old_key}, Key=new_key)
+
         return jsonify({"message": f"Successfully copied folder {source_folder} to {destination_folder}"})
     except ClientError as e:
         return jsonify({"error": f"S3 Error: {e.response['Error']['Message']}"}), 500
@@ -362,20 +392,29 @@ def api_s3_delete_folder():
     prefix = data.get('prefix')
     if not prefix:
         return jsonify({"error": "Missing folder prefix"}), 400
+    if not prefix.endswith('/'):
+        prefix += '/'
 
     try:
         s3_client, bucket_name = get_s3_client()
-
-        # List all objects with the given prefix
+        paginator = s3_client.get_paginator('list_objects_v2')
         objects_to_delete = []
-        for obj in s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix).get('Contents', []):
-            objects_to_delete.append({'Key': obj['Key']})
+
+        for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
+            if 'Contents' in page:
+                for obj in page['Contents']:
+                    objects_to_delete.append({'Key': obj['Key']})
 
         if not objects_to_delete:
             return jsonify({"message": "Folder is already empty or does not exist."})
 
-        # Batch delete the objects
-        s3_client.delete_objects(Bucket=bucket_name, Delete={'Objects': objects_to_delete})
+        # S3 delete_objects can handle up to 1000 keys at a time.
+        for i in range(0, len(objects_to_delete), 1000):
+            s3_client.delete_objects(
+                Bucket=bucket_name,
+                Delete={'Objects': objects_to_delete[i:i+1000]}
+            )
+
         return jsonify({"message": f"Successfully deleted folder {prefix}"})
     except ClientError as e:
         return jsonify({"error": f"S3 Error: {e.response['Error']['Message']}"}), 500
