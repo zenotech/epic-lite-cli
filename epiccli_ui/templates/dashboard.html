@@ -4,55 +4,266 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPIC-UI - {{ project_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="importmap">
+        {
+          "imports": {
+            "@kitware/vtk.js/": "https://cdn.skypack.dev/@kitware/vtk.js/"
+          }
+        }
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='1') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
-<body>
-    <div class="header">
-        <div class="header-left">
-            <button id="menu-toggle" class="menu-toggle-btn">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <img src="{{ url_for('static', filename='logo2.png') }}" alt="EPIC Logo" class="header-logo">
+<body class="bg-gray-50">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
+             <div class="p-6 border-b border-gray-200">
+              <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+                <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" class="w-10 h-10">
+                <div>
+                  <h1 class="font-semibold text-gray-900">Epic Project</h1>
+                  <p class="text-xs text-gray-500">{{ project_name }}</p>
+                </div>
+              </a>
+            </div>
+            <nav class="flex-1 p-4">
+                <div class="space-y-1">
+                    <button
+                      onclick="setActiveTab('dashboard')"
+                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                      id="dashboard-tab"
+                    >
+                      <i data-lucide="home" class="w-5 h-5"></i>
+                      <span class="font-medium">Dashboard</span>
+                    </button>
+
+                    <button
+                      onclick="setActiveTab('jobs')"
+                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-blue-50 text-blue-700"
+                      id="jobs-tab"
+                    >
+                      <i data-lucide="briefcase" class="w-5 h-5"></i>
+                      <span class="font-medium">Jobs</span>
+                    </button>
+
+                    <button
+                      onclick="setActiveTab('storage')"
+                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                      id="storage-tab"
+                    >
+                      <i data-lucide="hard-drive" class="w-5 h-5"></i>
+                      <span class="font-medium">Storage</span>
+                    </button>
+
+                    <button
+                      onclick="setActiveTab('settings')"
+                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                      id="settings-tab" style="display: none;"
+                    >
+                      <i data-lucide="settings" class="w-5 h-5"></i>
+                      <span class="font-medium">Settings</span>
+                    </button>
+                  </div>
+            </nav>
+            <div class="p-4 border-t border-gray-200">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">Monthly Spend</span>
+                    <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
+                  </div>
+                  <div class="text-2xl font-bold text-gray-900 mb-1" id="current-spend">$0.00</div>
+                  <div class="text-xs text-gray-600 mb-3">of <span id="spend-limit">$0.00</span> limit</div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="spend-bar" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+                  </div>
+                </div>
+            </div>
         </div>
-        <h1>{{ project_name }}</h1>
-        <div></div>
-    </div>
-    <div id="dashboard-container" class="dashboard-container">
-        <div class="sidebar">
-            <h3>Menu</h3>
-            <a href="{{ url_for('index') }}">Change Project</a>
-        </div>
-        <div class="dashboard-main">
-            <div class="panel">
-                <h2>Billing Information</h2>
-                <div id="billing-info">
-                    <p><strong>Spend Limit:</strong> <span id="spend-limit">Loading...</span></p>
-                    <p><strong>Current Monthly Spend:</strong> <span id="current-spend">Loading...</span></p>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-white border-b border-gray-200 px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                      <h2 class="text-2xl font-bold text-gray-900" id="header-title">Job Management</h2>
+                      <p class="text-sm text-gray-600 mt-1" id="header-subtitle">Monitor and manage your computational jobs</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      <div class="relative">
+                        <button
+                          onclick="toggleNotifications()"
+                          class="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+                        >
+                          <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                          <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+
+                        <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+                          <div class="p-4 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-900">Notifications</h3>
+                          </div>
+                          <div class="max-h-96 overflow-y-auto">
+                            <!-- Notifications will be loaded here -->
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+                        <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                        <span class="text-sm font-medium text-gray-700">{{ username }}</span>
+                      </div>
+                    </div>
+                  </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-auto p-8">
+                <div id="dashboard-content" class="tab-content hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                          <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-gray-900">Active Jobs</h3>
+                            <i data-lucide="briefcase" class="w-5 h-5 text-blue-600"></i>
+                          </div>
+                          <div id="active-jobs-value" class="text-3xl font-bold text-gray-900 mb-2">0</div>
+                          <p id="active-jobs-desc" class="text-sm text-gray-600">0 running, 0 queued</p>
+                        </div>
+
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                          <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-gray-900">Storage Used</h3>
+                            <i data-lucide="hard-drive" class="w-5 h-5 text-green-600"></i>
+                          </div>
+                          <div id="storage-used-value" class="text-3xl font-bold text-gray-900 mb-2">0 MB</div>
+                          <p id="storage-used-desc" class="text-sm text-gray-600">0 files, 0 folders</p>
+                        </div>
+
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                          <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-gray-900">This Month</h3>
+                            <i data-lucide="calendar" class="w-5 h-5 text-purple-600"></i>
+                          </div>
+                          <div id="this-month-value" class="text-3xl font-bold text-gray-900 mb-2">$0.00</div>
+                          <p id="this-month-desc" class="text-sm text-gray-600">0% of budget used</p>
+                        </div>
+                      </div>
+
+                      <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                        <div id="recent-activity-list" class="space-y-4">
+                          <!-- Activity will be loaded here -->
+                        </div>
+                      </div>
                 </div>
-            </div>
-            <div class="panel">
-                <h2>Jobs</h2>
-                <button id="refresh-jobs">Refresh</button>
-                <div id="job-list">
-                    <p>Loading...</p>
+                <div id="jobs-content" class="tab-content space-y-6">
+                    <div class="bg-white rounded-lg border border-gray-200 p-4">
+                        <div class="flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 flex-1">
+                                <div class="relative flex-1 max-w-md">
+                                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                                    <input
+                                      type="text"
+                                      id="job-search-input"
+                                      placeholder="Search jobs..."
+                                      class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                  </div>
+                                  <div class="flex items-center gap-2">
+                                    <i data-lucide="filter" class="w-5 h-5 text-gray-400"></i>
+                                    <select
+                                      id="job-status-filter"
+                                      class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    >
+                                      <option value="all">All Status</option>
+                                      <option value="COMPLETED">Completed</option>
+                                      <option value="RUNNING">Running</option>
+                                      <option value="QUEUED">Queued</option>
+                                      <option value="FAILED">Failed</option>
+                                    </select>
+                                  </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2" id="refresh-jobs">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    Refresh
+                                  </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <div id="job-list">
+                            <p class="text-gray-500 p-4">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="panel">
-                <h2>S3 Browser</h2>
-                <div id="s3-browser">
-                    <div id="s3-breadcrumbs"></div>
-                    <hr>
-                    <input type="file" id="s3-upload-input" multiple style="display: none;">
-                    <button id="s3-upload-button"><i class="fas fa-upload"></i> Upload</button>
-                    <button id="s3-refresh-button"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    <hr>
-                    <div id="s3-file-list"></div>
+                <div id="storage-content" class="tab-content hidden space-y-6">
+                    <div class="bg-white rounded-lg border border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <div id="s3-breadcrumbs" class="flex items-center gap-2 text-sm">
+                                <!-- Breadcrumbs will be loaded here -->
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="s3-upload-button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                    <i data-lucide="upload" class="w-4 h-4"></i>
+                                    Upload
+                                </button>
+                                <button id="s3-refresh-button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg border border-gray-200">
+                        <div id="s3-file-list" class="grid grid-cols-1 divide-y divide-gray-200">
+                            <!-- File list will be loaded here -->
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <div id="settings-content" class="tab-content hidden">
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="font-semibold text-gray-900 mb-6">Project Settings</h3>
+                        <div class="space-y-6">
+                          <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                              Monthly Spend Limit
+                            </label>
+                            <input
+                              type="number"
+                              defaultValue="100"
+                              class="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <p class="text-sm text-gray-500 mt-2">Set the maximum monthly spend for this project</p>
+                          </div>
+
+                          <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                              Project Name
+                            </label>
+                            <input
+                              type="text"
+                              value="{{ project_name }}"
+                              class="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+
+                          <div class="pt-4">
+                            <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                              Save Changes
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                </div>
+            </main>
         </div>
     </div>
 
@@ -63,12 +274,24 @@
             loadBillingInfo();
             loadJobs();
             loadS3Browser();
-
-            document.getElementById('menu-toggle').addEventListener('click', () => {
-                document.getElementById('dashboard-container').classList.toggle('sidebar-collapsed');
-            });
+            //loadDashboardData();
+            loadNotifications();
+            lucide.createIcons();
 
             document.getElementById('refresh-jobs').addEventListener('click', loadJobs);
+
+            $('#job-search-input').on('keyup', function() {
+                $('#jobs-table').DataTable().search($(this).val()).draw();
+            });
+
+            $('#job-status-filter').on('change', function() {
+                if ($(this).val() === 'all') {
+                    $('#jobs-table').DataTable().column(3).search('').draw();
+                } else {
+                    $('#jobs-table').DataTable().column(3).search($(this).val()).draw();
+                }
+            });
+
             document.getElementById('s3-upload-button').addEventListener('click', () => document.getElementById('s3-upload-input').click());
             document.getElementById('s3-upload-input').addEventListener('change', handleS3Upload);
             document.getElementById('s3-refresh-button').addEventListener('click', () => loadS3Browser(current_prefix));
@@ -79,15 +302,27 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        document.getElementById('billing-info').innerHTML = `<p style="color: red;">${data.error}</p>`;
+                        console.error('Error fetching billing info:', data.error);
                         return;
                     }
-                    document.getElementById('spend-limit').textContent = data.spend_limit.currency_symbol + data.spend_limit.amount;
-                    document.getElementById('current-spend').textContent = data.current_spend.currency_symbol + data.current_spend.amount;
+
+                    const spendLimit = parseFloat(data.spend_limit.amount);
+                    const currentSpend = parseFloat(data.current_spend.amount);
+                    const currency = data.spend_limit.currency_symbol;
+
+                    const spendPercentage = (currentSpend / spendLimit) * 100;
+
+                    // Update sidebar
+                    document.getElementById('spend-limit').textContent = currency + spendLimit.toFixed(2);
+                    document.getElementById('current-spend').textContent = currency + currentSpend.toFixed(2);
+                    document.getElementById('spend-bar').style.width = `${spendPercentage}%`;
+
+                    // Update dashboard card
+                    document.getElementById('this-month-value').textContent = currency + currentSpend.toFixed(2);
+                    document.getElementById('this-month-desc').textContent = `${spendPercentage.toFixed(0)}% of budget used`;
                 })
                 .catch(error => {
                     console.error('Error fetching billing info:', error);
-                    document.getElementById('billing-info').innerHTML = `<p style="color: red;">An error occurred.</p>`;
                 });
         }
 
@@ -108,38 +343,86 @@
                         return;
                     }
 
+                    // Calculate active jobs
+                    const activeJobs = data.filter(job => ['RUNNING', 'QUEUED', 'PROVISIONING'].includes(job.status));
+                    const runningJobs = data.filter(job => job.status === 'RUNNING').length;
+                    const queuedJobs = data.filter(job => ['QUEUED', 'PROVISIONING'].includes(job.status)).length;
+                    document.getElementById('active-jobs-value').textContent = activeJobs.length;
+                    document.getElementById('active-jobs-desc').textContent = `${runningJobs} running, ${queuedJobs} queued`;
+
+                    // Populate Recent Activity
+                    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+                    const recentJobs = data
+                        .filter(job => new Date(job.submitted_at) > twelveHoursAgo)
+                        .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
+                        .slice(0, 3);
+
+                    const activityList = document.getElementById('recent-activity-list');
+                    if (recentJobs.length > 0) {
+                        activityList.innerHTML = recentJobs.map(job => `
+                            <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                <div class="w-2 h-2 mt-2 rounded-full bg-blue-600"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900">Job "${job.name}" has status ${job.status}</p>
+                                    <p class="text-xs text-gray-500 mt-1">${new Date(job.submitted_at).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        activityList.innerHTML = '<p class="text-sm text-gray-500">No recent activity in the last 12 hours.</p>';
+                    }
+
                     let table = `
-                        <table id="jobs-table">
-                            <thead>
+                        <table id="jobs-table" class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Submitted By</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Action</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted By</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-gray-200">
                     `;
                     data.forEach(job => {
                         const isCancelable = ['RUNNING', 'PENDING', 'SUBMITTED', 'RUNNABLE', 'STARTING', 'PROVISIONING'].includes(job.status);
+                        const isViewable = ['RUNNING', 'COMPLETED', 'FAILED'].includes(job.status);
                         table += `
-                            <tr class="job-ticket">
-                                <td title="${job.uuid}">${job.name}</td>
-                                <td>${job.submitted_by}</td>
-                                <td>${job.status}</td>
-                                <td>${new Date(job.submitted_at).toLocaleString()}</td>
-                                <td>
-                                    <button class="icon-button" onclick="viewJobLogs('${job.uuid}')" title="View Logs"><i class="fas fa-eye"></i></button>
-                                    <button class="icon-button" onclick="cancelJob('${job.uuid}')" ${isCancelable ? '' : 'disabled'} title="Cancel Job"><i class="fas fa-times-circle"></i></button>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="font-medium text-gray-900" title="UUID: ${job.uuid}">${job.name}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-700">${job.submitted_by}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(job.status)}">
+                                        <i data-lucide="${getStatusIcon(job.status)}" class="w-4 h-4"></i>
+                                        ${job.status}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    ${new Date(job.submitted_at).toLocaleString()}
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="viewJobLogs('${job.uuid}')" ${isViewable ? '' : 'disabled'} title="View Logs">
+                                            <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
+                                        </button>
+                                        <button class="p-2 hover:bg-red-50 rounded-lg transition-colors" onclick="cancelJob('${job.uuid}')" ${isCancelable ? '' : 'disabled'} title="Cancel Job">
+                                            <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
                     });
                     table += '</tbody></table>';
                     jobListDiv.innerHTML = table;
+                    lucide.createIcons();
                     $('#jobs-table').DataTable({
-                        "order": [[ 3, "desc" ]]
+                        "order": [[ 4, "desc" ]]
                     });
                 })
                 .catch(error => {
@@ -208,41 +491,6 @@
                 });
         }
 
-        async function viewJobLogs(jobUuid) {
-            const modal = document.getElementById('file-viewer-modal');
-            const fileContentDiv = document.getElementById('file-content');
-            const closeButton = document.querySelector('.close-button');
-
-            fileContentDiv.innerHTML = '<p>Loading logs...</p>';
-            modal.style.display = 'block';
-
-            try {
-                const response = await fetch(`/api/job/${jobUuid}/tail`);
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ error: 'Failed to parse error JSON.' }));
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                const logs = data.logs.map(log => log.message).join('\n');
-                fileContentDiv.innerHTML = `<pre>${escapeHtml(logs)}</pre>`;
-            } catch (error) {
-                console.error('View logs error:', error);
-                fileContentDiv.innerHTML = `<p style="color: red;">Failed to load logs: ${error.message}</p>`;
-            }
-
-            closeButton.onclick = function() {
-                modal.style.display = 'none';
-                fileContentDiv.innerHTML = '';
-            }
-
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                    fileContentDiv.innerHTML = '';
-                }
-            }
-        }
-
         // S3 Browser Functions
         function loadS3Browser(prefix = '') {
             current_prefix = prefix;
@@ -272,76 +520,93 @@
             let path = '';
             const segments = prefix.split('/').filter(Boolean);
 
-            const rootLink = document.createElement('a');
-            rootLink.href = '#';
+            const rootLink = document.createElement('button');
+            rootLink.className = 'text-blue-600 hover:text-blue-800 font-medium';
             rootLink.textContent = 'Bucket Root';
             rootLink.onclick = (e) => { e.preventDefault(); loadS3Browser(''); };
             breadcrumbsDiv.appendChild(rootLink);
 
             segments.forEach((segment, index) => {
                 path += segment + '/';
-                const separator = document.createTextNode(' / ');
+                const separator = document.createElement('i');
+                separator.setAttribute('data-lucide', 'chevron-right');
+                separator.className = 'w-4 h-4 text-gray-400';
                 breadcrumbsDiv.appendChild(separator);
-                const link = document.createElement('a');
-                link.href = '#';
+
+                const link = document.createElement('button');
+                link.className = 'text-blue-600 hover:text-blue-800 font-medium';
                 link.textContent = segment;
                 const currentPath = path;
                 link.onclick = (e) => { e.preventDefault(); loadS3Browser(currentPath); };
                 breadcrumbsDiv.appendChild(link);
             });
+            lucide.createIcons();
         }
 
         function renderS3Files(folders, files) {
             const fileListDiv = document.getElementById('s3-file-list');
-            let table = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Size</th>
-                            <th>Last Modified</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+            let content = '';
 
             folders.forEach(folder => {
                 const folderName = folder.replace(current_prefix, '').replace('/', '');
-                table += `
-                    <tr>
-                        <td><a href="#" onclick="event.preventDefault(); loadS3Browser('${folder}')"><i class="fas fa-folder"></i> ${folderName}</a></td>
-                        <td>--</td>
-                        <td>--</td>
-                        <td>
-                            <button class="icon-button" onclick="renameFolder('${folder}')" title="Rename"><i class="fas fa-edit"></i></button>
-                            <button class="icon-button" onclick="copyFolder('${folder}')" title="Copy"><i class="fas fa-copy"></i></button>
-                            <button class="icon-button" onclick="deleteFolder('${folder}')" title="Delete"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
+                content += `
+                    <div class="p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3 flex-1">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50">
+                                    <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900 cursor-pointer" onclick="event.stopPropagation(); loadS3Browser('${folder}')">${folderName}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); renameFolder('${folder}')" title="Rename"><i data-lucide="edit" class="w-4 h-4 text-gray-600"></i></button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); copyFolder('${folder}')" title="Copy"><i data-lucide="copy" class="w-4 h-4 text-gray-600"></i></button>
+                                <button class="p-2 hover:bg-red-50 rounded-lg transition-colors" onclick="event.stopPropagation(); deleteFolder('${folder}')" title="Delete">
+                                    <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 `;
             });
 
             files.forEach(file => {
                 const fileName = file.key.replace(current_prefix, '');
-                table += `
-                    <tr>
-                        <td>${fileName}</td>
-                        <td>${formatBytes(file.size)}</td>
-                        <td>${new Date(file.last_modified).toLocaleString()}</td>
-                        <td>
-                            <button class="icon-button" onclick="viewFile('${file.key}')" title="View"><i class="fas fa-eye"></i></button>
-                            <button class="icon-button" onclick="downloadFile('${file.key}')" title="Download"><i class="fas fa-download"></i></button>
-                            <button class="icon-button" onclick="renameFile('${file.key}')" title="Rename"><i class="fas fa-edit"></i></button>
-                            <button class="icon-button" onclick="copyFile('${file.key}')" title="Copy"><i class="fas fa-copy"></i></button>
-                            <button class="icon-button" onclick="deleteFile('${file.key}')" title="Delete"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
+                content += `
+                    <div class="p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3 flex-1">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-50">
+                                    <i data-lucide="file" class="w-5 h-5 text-gray-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900 cursor-pointer" onclick="event.stopPropagation(); viewFile('${file.key}')">${fileName}</div>
+                                    <div class="text-sm text-gray-500">${new Date(file.last_modified).toLocaleString()}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <span class="text-sm text-gray-600 w-24 text-right">${formatBytes(file.size)}</span>
+                                <div class="flex items-center gap-2">
+                                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); viewFile('${file.key}')" title="View"><i data-lucide="eye" class="w-4 h-4 text-gray-600"></i></button>
+                                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); downloadFile('${file.key}')" title="Download">
+                                        <i data-lucide="download" class="w-4 h-4 text-gray-600"></i>
+                                    </button>
+                                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); renameFile('${file.key}')" title="Rename"><i data-lucide="edit" class="w-4 h-4 text-gray-600"></i></button>
+                                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); copyFile('${file.key}')" title="Copy"><i data-lucide="copy" class="w-4 h-4 text-gray-600"></i></button>
+                                    <button class="p-2 hover:bg-red-50 rounded-lg transition-colors" onclick="event.stopPropagation(); deleteFile('${file.key}')" title="Delete">
+                                        <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 `;
             });
 
-            table += '</tbody></table>';
-            fileListDiv.innerHTML = table;
+            fileListDiv.innerHTML = content;
+            lucide.createIcons();
         }
 
         function formatBytes(bytes, decimals = 2) {
@@ -540,17 +805,77 @@
             const modal = document.getElementById('file-viewer-modal');
             const fileContentDiv = document.getElementById('file-content');
             const closeButton = document.querySelector('.close-button');
+            let vtkCleanup = () => {}; // No-op cleanup function by default
 
             // Clear previous content and show loading message
             fileContentDiv.innerHTML = '<p>Loading...</p>';
             modal.style.display = 'block';
 
-            // Check file extension
             if (key.toLowerCase().endsWith('.png')) {
-                // For PNG files, display an img tag
                 fileContentDiv.innerHTML = `<img src="/api/s3/view/${key}" alt="${key}" style="max-width: 100%; height: auto;">`;
+            } else if (key.toLowerCase().endsWith('.vtp')) {
+                fileContentDiv.innerHTML = '<div id="vtk-container" style="width: 100%; height: 100%; flex: 1 1 auto;"></div>';
+
+                try {
+                    // Dynamically import vtk.js modules
+                    const { default: vtkRenderWindow } = await import('@kitware/vtk.js/Rendering/Core/RenderWindow');
+                    const { default: vtkRenderer } = await import('@kitware/vtk.js/Rendering/Core/Renderer');
+                    const { default: vtkActor } = await import('@kitware/vtk.js/Rendering/Core/Actor');
+                    const { default: vtkMapper } = await import('@kitware/vtk.js/Rendering/Core/Mapper');
+                    const { default: vtkXMLPolyDataReader } = await import('@kitware/vtk.js/IO/XML/XMLPolyDataReader');
+                    const { default: vtkOpenGLRenderWindow } = await import('@kitware/vtk.js/Rendering/OpenGL/RenderWindow');
+                    const { default: vtkRenderWindowInteractor } = await import('@kitware/vtk.js/Rendering/Core/RenderWindowInteractor');
+                    const { default: vtkInteractorStyleTrackballCamera } = await import('@kitware/vtk.js/Interaction/Style/InteractorStyleTrackballCamera');
+
+                    const response = await fetch(`/api/s3/view/${key}`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const fileContents = await response.arrayBuffer();
+
+                    const reader = vtkXMLPolyDataReader.newInstance();
+                    reader.parseAsArrayBuffer(fileContents);
+
+                    const mapper = vtkMapper.newInstance({ scalarVisibility: false });
+                    mapper.setInputConnection(reader.getOutputPort());
+
+                    const actor = vtkActor.newInstance();
+                    actor.setMapper(mapper);
+
+                    const renderer = vtkRenderer.newInstance({ background: [0.2, 0.3, 0.4] });
+                    renderer.addActor(actor);
+                    renderer.resetCamera();
+
+                    const renderWindow = vtkRenderWindow.newInstance();
+                    renderWindow.addRenderer(renderer);
+
+                    const openglRenderWindow = vtkOpenGLRenderWindow.newInstance();
+                    renderWindow.addView(openglRenderWindow);
+
+                    const container = document.getElementById('vtk-container');
+                    openglRenderWindow.setContainer(container);
+
+                    const dims = container.getBoundingClientRect();
+                    openglRenderWindow.setSize(dims.width, dims.height);
+
+                    const interactor = vtkRenderWindowInteractor.newInstance();
+                    interactor.setView(openglRenderWindow);
+                    interactor.initialize();
+                    interactor.bindEvents(container);
+                    interactor.setInteractorStyle(vtkInteractorStyleTrackballCamera.newInstance());
+                    interactor.start(); // Start handling events
+
+                    renderWindow.render();
+
+                    // Define cleanup function to release VTK resources
+                    vtkCleanup = () => {
+                        renderWindow.delete();
+                        openglRenderWindow.delete();
+                    };
+
+                } catch (error) {
+                    console.error('VTK rendering error:', error);
+                    fileContentDiv.innerHTML = `<p style="color: red;">Failed to render VTP file: ${error.message}</p>`;
+                }
             } else {
-                // For other files, fetch and display as text in a pre tag
                 try {
                     const response = await fetch(`/api/s3/view/${key}`);
                     if (!response.ok) {
@@ -558,7 +883,6 @@
                         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                     }
                     const content = await response.text();
-                    // Wrap the text content in a <pre> tag for formatting
                     fileContentDiv.innerHTML = `<pre>${escapeHtml(content)}</pre>`;
                 } catch (error) {
                     console.error('View file error:', error);
@@ -566,15 +890,16 @@
                 }
             }
 
-            closeButton.onclick = function() {
+            const closeModal = () => {
+                vtkCleanup(); // Clean up VTK resources if they exist
                 modal.style.display = 'none';
-                fileContentDiv.innerHTML = ''; // Clear content when closing
-            }
+                fileContentDiv.innerHTML = '';
+            };
 
+            closeButton.onclick = closeModal;
             window.onclick = function(event) {
                 if (event.target == modal) {
-                    modal.style.display = 'none';
-                    fileContentDiv.innerHTML = ''; // Clear content when closing
+                    closeModal();
                 }
             }
         }
@@ -595,7 +920,78 @@
             <div id="file-content"></div>
         </div>
     </div>
+    <input type="file" id="s3-upload-input" style="display: none;" multiple>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        function setActiveTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Deactivate all tabs
+            document.querySelectorAll('nav button').forEach(button => {
+                button.classList.remove('bg-blue-50', 'text-blue-700');
+                button.classList.add('text-gray-700', 'hover:bg-gray-50');
+            });
+
+            // Activate the selected tab and content
+            document.getElementById(`${tabName}-content`).classList.remove('hidden');
+            document.getElementById(`${tabName}-tab`).classList.add('bg-blue-50', 'text-blue-700');
+            document.getElementById(`${tabName}-tab`).classList.remove('text-gray-700', 'hover:bg-gray-50');
+
+            lucide.createIcons();
+        }
+        function loadNotifications() {
+            const notifications = [
+                { id: 1, text: 'Job "CFD Simulation v2" is now running', time: '5 min ago' },
+                { id: 2, text: 'Job "Test OpenFOAM Job" completed successfully', time: '2 hours ago' },
+                { id: 3, text: 'Spend limit at 68% ($68/$100)', time: '1 day ago' },
+            ];
+            const dropdown = document.querySelector('#notifications-dropdown .max-h-96');
+            dropdown.innerHTML = notifications.map(notif => `
+                <div class="p-4 border-b border-gray-100 hover:bg-gray-50">
+                    <p class="text-sm text-gray-900">${notif.text}</p>
+                    <p class="text-xs text-gray-500 mt-1">${notif.time}</p>
+                </div>
+            `).join('');
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notifications-dropdown').classList.toggle('hidden');
+        }
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'COMPLETED': return 'check-circle';
+                case 'SUCCEEDED': return 'check-circle';
+                case 'RUNNING': return 'play';
+                case 'PENDING': return 'clock';
+                case 'QUEUED': return 'clock';
+                case 'SUBMITTED': return 'clock';
+                case 'RUNNABLE': return 'clock';
+                case 'STARTING': return 'clock';
+                case 'PROVISIONING': return 'clock';
+                case 'FAILED': return 'alert-circle';
+                default: return 'help-circle';
+            }
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'COMPLETED': return 'bg-green-100 text-green-800 border-green-200';
+                case 'SUCCEEDED': return 'bg-green-100 text-green-800 border-green-200';
+                case 'RUNNING': return 'bg-blue-100 text-blue-800 border-blue-200';
+                case 'PENDING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                case 'QUEUED': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                case 'SUBMITTED': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                case 'RUNNABLE': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                case 'STARTING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                case 'PROVISIONING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                case 'FAILED': return 'bg-red-100 text-red-800 border-red-200';
+                default: return 'bg-gray-100 text-gray-800 border-gray-200';
+            }
+        }
+    </script>
 </body>
 </html>
