@@ -429,7 +429,7 @@ def create_job_command(job_json_file, project_name):
         project_name (str, optional): The name of the project. Defaults to the
             active project.
 
-    Example `job.json` file:
+    Example `job.json` files:
 
     .. code-block:: json
 
@@ -438,9 +438,9 @@ def create_job_command(job_json_file, project_name):
             "jobs": [{
                 "name": "Test OpenFOAM Job",
                 "spec": {
-                    "app_code": "my-openfoam",
+                    "app_code": "my-openfoamv8",
                     "tasks": [{"reference": "main-task", 
-                                "partitions": 16, 
+                                "partitions": 64, 
                                 "runtime": 1, 
                                 "task_distribution": "core",
                                 "memory_gb": 16
@@ -451,6 +451,27 @@ def create_job_command(job_json_file, project_name):
                 "cluster": {"queue_code": "batch-single-node"}
             }]
         }
+
+    .. code-block:: json
+
+        {
+            "name": "Test Job Array",
+            "jobs": [{
+                "name": "Test OpenFOAM Job",
+                "spec": {
+                    "app_code": "my-openfoamv2212",
+                    "tasks": [{"reference": "main-task", 
+                                "partitions": 32, 
+                                "runtime": 1, 
+                                "task_distribution": "core",
+                                "memory_gb": 16
+                            }]
+                },
+                "input_data": {"path": "v2212/motorBike"},
+                "app_options": {"base_command": "su sudofoam -c '. /usr/lib/openfoam/openfoam2212/etc/bashrc && ls -lta && ./Allclean && ./Allrun'"},
+                "cluster": {"queue_code": "batch-single-node"}
+            }]
+        }    
     """
     project_name = get_active_project(project_name)
     if not project_name:
