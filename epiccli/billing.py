@@ -29,11 +29,9 @@ def get_billing_info(project_config):
         billing_data = response.json()
 
         click.echo("Billing Information:")
-        monthly_spend = billing_data.get('monthly_spend', 'N/A')
-        limit = billing_data.get('limit', 'N/A')
+        monthly_spend = billing_data.get('monthly_spend', {'currency_symbol': '$', 'amount': 'N/A'})
 
         click.echo(f"  Monthly Spend to Date: {monthly_spend['currency_symbol']}{monthly_spend['amount']}")
-        click.echo(f"  Monthly Spend Limit: {limit['currency_symbol']}{limit['amount']}")
 
     except requests.exceptions.RequestException as e:
         click.echo(f"Error fetching billing information: {e}")

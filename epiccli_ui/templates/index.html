@@ -4,24 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPIC-UI - Select Project</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
-    <div class="container">
-        <div class="main-content">
-            <div class="center-panel">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="EPIC Logo" style="height: 50px; margin-bottom: 20px;">
-                <h1>Select a Project</h1>
-                {% if projects %}
-                    <ul class="project-list">
-                        {% for project in projects %}
-                            <li><a href="{{ url_for('select_project', project_name=project) }}">{{ project }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No projects found. Please configure a project using the `epiccli`.</p>
-                {% endif %}
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg border border-gray-200">
+            <div class="flex flex-col items-center space-y-4">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-16 h-16">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-gray-900">Epic Projects</h1>
+                    <p class="text-gray-600">Please select a project to continue</p>
+                </div>
             </div>
+
+            {% if projects %}
+                <div class="space-y-3">
+                    {% for project in projects %}
+                        <a href="{{ url_for('select_project', project_name=project) }}" class="block w-full px-4 py-3 text-center font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                            {{ project }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
+                    <p class="text-yellow-800">No projects found. Please configure a project using the `epiccli`.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </body>

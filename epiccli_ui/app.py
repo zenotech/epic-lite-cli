@@ -57,6 +57,7 @@ def select_project(project_name):
         session['api_url'] = project_config.get('epic_api_url')
         session['project_id'] = project_name
         session['project_name'] = project_name
+        session['username'] = project_config.get('username', 'user')
 
         return redirect(url_for('dashboard'))
     except Exception as e:
@@ -73,7 +74,7 @@ def dashboard():
     if 'api_token' not in session:
         return redirect(url_for('index'))
 
-    return render_template('dashboard.html', project_name=project_name)
+    return render_template('dashboard.html', project_name=project_name, username=session.get('username'))
 
 @app.route('/api/billing')
 def api_billing():
