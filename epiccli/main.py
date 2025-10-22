@@ -459,7 +459,7 @@ def create_job_command(job_json_file, project_name):
             "jobs": [{
                 "name": "Test OpenFOAM Job",
                 "spec": {
-                    "app_code": "my-openfoamv2212",
+                    "app_code": "my-openfoam2212",
                     "tasks": [{"reference": "main-task", 
                                 "partitions": 32, 
                                 "runtime": 1, 
