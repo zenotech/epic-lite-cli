@@ -266,7 +266,7 @@
             </main>
         </div>
     </div>
-
+    <script src="static/vtk.js"></script>
     <script>
         let current_prefix = '';
 
@@ -814,53 +814,70 @@
             if (key.toLowerCase().endsWith('.png')) {
                 fileContentDiv.innerHTML = `<img src="/api/s3/view/${key}" alt="${key}" style="max-width: 100%; height: auto;">`;
             } else if (key.toLowerCase().endsWith('.vtp')) {
-                fileContentDiv.innerHTML = '<div id="vtk-container" style="width: 100%; height: 100%; flex: 1 1 auto;"></div>';
+
+                // Create the container
+                const container = document.createElement('div');
+                container.id = 'vtk-container';
+                container.style.cssText = 'width: 100%; height: 100%; flex: 1 1 auto;';
+
+                // Clear and append
+                fileContentDiv.innerHTML = '';
+                fileContentDiv.appendChild(container);
+                // fileContentDiv.innerHTML = '<div id="vtk-container" style="width: 100%; height: 100%; flex: 1 1 auto;"></div>';
 
                 try {
                     // Dynamically import vtk.js modules
-                    const { default: vtkRenderWindow } = await import('@kitware/vtk.js/Rendering/Core/RenderWindow');
-                    const { default: vtkRenderer } = await import('@kitware/vtk.js/Rendering/Core/Renderer');
-                    const { default: vtkActor } = await import('@kitware/vtk.js/Rendering/Core/Actor');
-                    const { default: vtkMapper } = await import('@kitware/vtk.js/Rendering/Core/Mapper');
-                    const { default: vtkXMLPolyDataReader } = await import('@kitware/vtk.js/IO/XML/XMLPolyDataReader');
-                    const { default: vtkOpenGLRenderWindow } = await import('@kitware/vtk.js/Rendering/OpenGL/RenderWindow');
-                    const { default: vtkRenderWindowInteractor } = await import('@kitware/vtk.js/Rendering/Core/RenderWindowInteractor');
-                    const { default: vtkInteractorStyleTrackballCamera } = await import('@kitware/vtk.js/Interaction/Style/InteractorStyleTrackballCamera');
+                    //const { default: vtkRenderWindow } = await import('@kitware/vtk.js/Rendering/Core/RenderWindow');
+                    //const { default: vtkRenderer } = await import('@kitware/vtk.js/Rendering/Core/Renderer');
+                    //const { default: vtkActor } = await import('@kitware/vtk.js/Rendering/Core/Actor');
+                    //const { default: vtkMapper } = await import('@kitware/vtk.js/Rendering/Core/Mapper');
+                    //const { default: vtkXMLPolyDataReader } = await import('@kitware/vtk.js/IO/XML/XMLPolyDataReader');
+                    //const { default: vtkOpenGLRenderWindow } = await import('@kitware/vtk.js/Rendering/OpenGL/RenderWindow');
+                    //const { default: vtkRenderWindowInteractor } = await import('@kitware/vtk.js/Rendering/Core/RenderWindowInteractor');
+                    //const { default: vtkInteractorStyleTrackballCamera } = await import('@kitware/vtk.js/Interaction/Style/InteractorStyleTrackballCamera');
 
-                    const response = await fetch(`/api/s3/view/${key}`);
+                    // Now initialize VTK.js with the reference you already have
+                    const renderWindow = vtk.Rendering.Core.vtkRenderWindow.newInstance();
+                    const openglRenderWindow = vtk.Rendering.OpenGL.vtkRenderWindow.newInstance();
+                    openglRenderWindow.setContainer(container);  // Use the direct reference
+                    renderWindow.addView(openglRenderWindow);
+
+                    const response = await fetch(`/api/s3/view/${key}`, {
+                            headers: { 'Accept': 'application/octet-stream' }
+                    });
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    //console.log("Response headers:", [...response.headers.entries()]);
+
+                    //const cloned = response.clone();
+                    //const text = await cloned.text();
+                    //console.log("First 1000 chars:", text.slice(0, 1000));
+
                     const fileContents = await response.arrayBuffer();
 
-                    const reader = vtkXMLPolyDataReader.newInstance();
+                    const reader = vtk.IO.XML.vtkXMLPolyDataReader.newInstance();
                     reader.parseAsArrayBuffer(fileContents);
 
-                    const mapper = vtkMapper.newInstance({ scalarVisibility: false });
+                    const mapper = vtk.Rendering.Core.vtkMapper.newInstance({ scalarVisibility: false });
                     mapper.setInputConnection(reader.getOutputPort());
 
-                    const actor = vtkActor.newInstance();
+                    const actor = vtk.Rendering.Core.vtkActor.newInstance();
                     actor.setMapper(mapper);
 
-                    const renderer = vtkRenderer.newInstance({ background: [0.2, 0.3, 0.4] });
+                    const renderer = vtk.Rendering.Core.vtkRenderer.newInstance({ background: [0.2, 0.3, 0.4] });
                     renderer.addActor(actor);
                     renderer.resetCamera();
 
-                    const renderWindow = vtkRenderWindow.newInstance();
+                    //const renderWindow = vtkRenderWindow.newInstance();
                     renderWindow.addRenderer(renderer);
-
-                    const openglRenderWindow = vtkOpenGLRenderWindow.newInstance();
-                    renderWindow.addView(openglRenderWindow);
-
-                    const container = document.getElementById('vtk-container');
-                    openglRenderWindow.setContainer(container);
 
                     const dims = container.getBoundingClientRect();
                     openglRenderWindow.setSize(dims.width, dims.height);
 
-                    const interactor = vtkRenderWindowInteractor.newInstance();
+                    const interactor = vtk.Rendering.Core.vtkRenderWindowInteractor.newInstance();
                     interactor.setView(openglRenderWindow);
                     interactor.initialize();
                     interactor.bindEvents(container);
-                    interactor.setInteractorStyle(vtkInteractorStyleTrackballCamera.newInstance());
+                    interactor.setInteractorStyle(vtk.Interaction.Style.vtkInteractorStyleTrackballCamera.newInstance());
                     interactor.start(); // Start handling events
 
                     renderWindow.render();
