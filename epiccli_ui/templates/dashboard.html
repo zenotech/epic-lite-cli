@@ -17,16 +17,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
-<body class="bg-gray-50">
+<body class="bg-[#F7FAFC]">
     <div class="min-h-screen flex">
         <!-- Sidebar -->
-        <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
-             <div class="p-6 border-b border-gray-200">
+        <div class="w-64 bg-white border-r border-[#E2E8F0] flex flex-col">
+             <div class="p-6 border-b border-[#E2E8F0]">
               <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-                <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" class="w-10 h-10">
+                <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" class="w-10 h-10 object-contain">
                 <div>
-                  <h1 class="font-semibold text-gray-900">Epic Project</h1>
-                  <p class="text-xs text-gray-500">{{ project_name }}</p>
+                  <h1 class="font-semibold text-[#2C3E50]">Epic Project</h1>
+                  <p class="text-xs text-[#718096]">{{ project_name }}</p>
                 </div>
               </a>
             </div>
@@ -34,7 +34,7 @@
                 <div class="space-y-1">
                     <button
                       onclick="setActiveTab('dashboard')"
-                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
                       id="dashboard-tab"
                     >
                       <i data-lucide="home" class="w-5 h-5"></i>
@@ -43,7 +43,7 @@
 
                     <button
                       onclick="setActiveTab('jobs')"
-                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-blue-50 text-blue-700"
+                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-[#E2E8F0] text-[#2C3E50]"
                       id="jobs-tab"
                     >
                       <i data-lucide="briefcase" class="w-5 h-5"></i>
@@ -52,7 +52,7 @@
 
                     <button
                       onclick="setActiveTab('storage')"
-                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
                       id="storage-tab"
                     >
                       <i data-lucide="hard-drive" class="w-5 h-5"></i>
@@ -61,7 +61,7 @@
 
                     <button
                       onclick="setActiveTab('settings')"
-                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
                       id="settings-tab" style="display: none;"
                     >
                       <i data-lucide="settings" class="w-5 h-5"></i>
@@ -69,16 +69,16 @@
                     </button>
                   </div>
             </nav>
-            <div class="p-4 border-t border-gray-200">
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+            <div class="p-4 border-t border-[#E2E8F0]">
+                <div class="bg-gradient-to-br from-[#F7FAFC] to-[#E2E8F0] rounded-lg p-4 border border-[#E2E8F0]">
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700">Monthly Spend</span>
-                    <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
+                    <span class="text-sm font-medium text-[#4A5568]">Monthly Spend</span>
+                    <i data-lucide="trending-up" class="w-4 h-4 text-[#4A5568]"></i>
                   </div>
-                  <div class="text-2xl font-bold text-gray-900 mb-1" id="current-spend">$0.00</div>
-                  <div class="text-xs text-gray-600 mb-3">of <span id="spend-limit">$0.00</span> limit</div>
-                  <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="spend-bar" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+                  <div class="text-2xl font-bold text-[#2C3E50] mb-1" id="current-spend">$0.00</div>
+                  <div class="text-xs text-[#4A5568] mb-3">of <span id="spend-limit">$0.00</span> limit</div>
+                  <div class="w-full bg-[#E2E8F0] rounded-full h-2">
+                    <div id="spend-bar" class="bg-[#A0AEC0] h-2 rounded-full" style="width: 0%"></div>
                   </div>
                 </div>
             </div>
@@ -87,26 +87,26 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             <!-- Header -->
-            <header class="bg-white border-b border-gray-200 px-8 py-4">
+            <header class="bg-white border-b border-[#E2E8F0] px-8 py-4">
                 <div class="flex items-center justify-between">
                     <div>
-                      <h2 class="text-2xl font-bold text-gray-900" id="header-title">Job Management</h2>
-                      <p class="text-sm text-gray-600 mt-1" id="header-subtitle">Monitor and manage your computational jobs</p>
+                      <h2 class="text-2xl font-bold text-[#2C3E50]" id="header-title">Job Management</h2>
+                      <p class="text-sm text-[#4A5568] mt-1" id="header-subtitle">Monitor and manage your computational jobs</p>
                     </div>
 
                     <div class="flex items-center gap-3">
-                      <div class="relative">
+                      <div class="relative hidden">
                         <button
                           onclick="toggleNotifications()"
-                          class="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+                          class="p-2 hover:bg-[#F7FAFC] rounded-lg transition-colors relative"
                         >
-                          <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
-                          <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                          <i data-lucide="bell" class="w-5 h-5 text-[#4A5568]"></i>
+                          <span class="absolute top-1 right-1 w-2 h-2 bg-[#EF4444] rounded-full"></span>
                         </button>
 
-                        <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
-                          <div class="p-4 border-b border-gray-200">
-                            <h3 class="font-semibold text-gray-900">Notifications</h3>
+                        <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-[#E2E8F0] z-50 hidden">
+                          <div class="p-4 border-b border-[#E2E8F0]">
+                            <h3 class="font-semibold text-[#2C3E50]">Notifications</h3>
                           </div>
                           <div class="max-h-96 overflow-y-auto">
                             <!-- Notifications will be loaded here -->
@@ -114,9 +114,9 @@
                         </div>
                       </div>
 
-                      <div class="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                        <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
-                        <span class="text-sm font-medium text-gray-700">{{ username }}</span>
+                      <div class="flex items-center gap-2 px-3 py-2 bg-[#F7FAFC] rounded-lg">
+                        <i data-lucide="user" class="w-4 h-4 text-[#4A5568]"></i>
+                        <span class="text-sm font-medium text-[#4A5568]">{{ username }}</span>
                       </div>
                     </div>
                   </div>
@@ -126,59 +126,59 @@
             <main class="flex-1 overflow-auto p-8">
                 <div id="dashboard-content" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
                           <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-semibold text-gray-900">Active Jobs</h3>
-                            <i data-lucide="briefcase" class="w-5 h-5 text-blue-600"></i>
+                            <h3 class="font-semibold text-[#2C3E50]">Active Jobs</h3>
+                            <i data-lucide="briefcase" class="w-5 h-5 text-[#3B82F6]"></i>
                           </div>
-                          <div id="active-jobs-value" class="text-3xl font-bold text-gray-900 mb-2">0</div>
-                          <p id="active-jobs-desc" class="text-sm text-gray-600">0 running, 0 queued</p>
+                          <div id="active-jobs-value" class="text-3xl font-bold text-[#2C3E50] mb-2">0</div>
+                          <p id="active-jobs-desc" class="text-sm text-[#4A5568]">0 running, 0 queued</p>
                         </div>
 
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
                           <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-semibold text-gray-900">Storage Used</h3>
-                            <i data-lucide="hard-drive" class="w-5 h-5 text-green-600"></i>
+                            <h3 class="font-semibold text-[#2C3E50]">Storage Used</h3>
+                            <i data-lucide="hard-drive" class="w-5 h-5 text-[#10B981]"></i>
                           </div>
-                          <div id="storage-used-value" class="text-3xl font-bold text-gray-900 mb-2">0 MB</div>
-                          <p id="storage-used-desc" class="text-sm text-gray-600">0 files, 0 folders</p>
+                          <div id="storage-used-value" class="text-3xl font-bold text-[#2C3E50] mb-2">0 MB</div>
+                          <p id="storage-used-desc" class="text-sm text-[#4A5568]">0 files, 0 folders</p>
                         </div>
 
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
                           <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-semibold text-gray-900">This Month</h3>
-                            <i data-lucide="calendar" class="w-5 h-5 text-purple-600"></i>
+                            <h3 class="font-semibold text-[#2C3E50]">This Month</h3>
+                            <i data-lucide="calendar" class="w-5 h-5 text-[#8B5CF6]"></i>
                           </div>
-                          <div id="this-month-value" class="text-3xl font-bold text-gray-900 mb-2">$0.00</div>
-                          <p id="this-month-desc" class="text-sm text-gray-600">0% of budget used</p>
+                          <div id="this-month-value" class="text-3xl font-bold text-[#2C3E50] mb-2">$0.00</div>
+                          <p id="this-month-desc" class="text-sm text-[#4A5568]">0% of budget used</p>
                         </div>
                       </div>
 
-                      <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <h3 class="font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                      <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
+                        <h3 class="font-semibold text-[#2C3E50] mb-4">Recent Activity</h3>
                         <div id="recent-activity-list" class="space-y-4">
                           <!-- Activity will be loaded here -->
                         </div>
                       </div>
                 </div>
                 <div id="jobs-content" class="tab-content space-y-6">
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="bg-white rounded-lg border border-[#E2E8F0] p-4">
                         <div class="flex items-center justify-between gap-4">
                             <div class="flex items-center gap-3 flex-1">
                                 <div class="relative flex-1 max-w-md">
-                                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#A0AEC0]"></i>
                                     <input
                                       type="text"
                                       id="job-search-input"
                                       placeholder="Search jobs..."
-                                      class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      class="w-full pl-10 pr-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent"
                                     />
                                   </div>
                                   <div class="flex items-center gap-2">
-                                    <i data-lucide="filter" class="w-5 h-5 text-gray-400"></i>
+                                    <i data-lucide="filter" class="w-5 h-5 text-[#A0AEC0]"></i>
                                     <select
                                       id="job-status-filter"
-                                      class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      class="px-3 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent"
                                     >
                                       <option value="all">All Status</option>
                                       <option value="COMPLETED">Completed</option>
@@ -189,74 +189,74 @@
                                   </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2" id="refresh-jobs">
+                                <button class="px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors flex items-center gap-2" id="refresh-jobs">
                                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                                     Refresh
                                   </button>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <div class="bg-white rounded-lg border border-[#E2E8F0] overflow-hidden">
                         <div class="overflow-x-auto">
                             <div id="job-list">
-                            <p class="text-gray-500 p-4">Loading...</p>
+                            <p class="text-[#4A5568] p-4">Loading...</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div id="storage-content" class="tab-content hidden space-y-6">
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="bg-white rounded-lg border border-[#E2E8F0] p-4">
                         <div class="flex items-center justify-between">
                             <div id="s3-breadcrumbs" class="flex items-center gap-2 text-sm">
                                 <!-- Breadcrumbs will be loaded here -->
                             </div>
                             <div class="flex items-center gap-2">
-                                <button id="s3-upload-button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                <button id="s3-upload-button" class="px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors flex items-center gap-2">
                                     <i data-lucide="upload" class="w-4 h-4"></i>
                                     Upload
                                 </button>
-                                <button id="s3-refresh-button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                <button id="s3-refresh-button" class="px-4 py-2 border border-[#A0AEC0] rounded-lg hover:bg-[#F7FAFC] transition-colors flex items-center gap-2">
                                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                                     Refresh
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg border border-gray-200">
-                        <div id="s3-file-list" class="grid grid-cols-1 divide-y divide-gray-200">
+                    <div class="bg-white rounded-lg border border-[#E2E8F0]">
+                        <div id="s3-file-list" class="grid grid-cols-1 divide-y divide-[#E2E8F0]">
                             <!-- File list will be loaded here -->
                         </div>
                     </div>
                 </div>
                 <div id="settings-content" class="tab-content hidden">
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <h3 class="font-semibold text-gray-900 mb-6">Project Settings</h3>
+                    <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
+                        <h3 class="font-semibold text-[#2C3E50] mb-6">Project Settings</h3>
                         <div class="space-y-6">
                           <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-[#4A5568] mb-2">
                               Monthly Spend Limit
                             </label>
                             <input
                               type="number"
                               defaultValue="100"
-                              class="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              class="w-full max-w-xs px-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent"
                             />
-                            <p class="text-sm text-gray-500 mt-2">Set the maximum monthly spend for this project</p>
+                            <p class="text-sm text-[#718096] mt-2">Set the maximum monthly spend for this project</p>
                           </div>
 
                           <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-[#4A5568] mb-2">
                               Project Name
                             </label>
                             <input
                               type="text"
                               value="{{ project_name }}"
-                              class="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              class="w-full max-w-xs px-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent"
                             />
                           </div>
 
                           <div class="pt-4">
-                            <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <button class="px-6 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors">
                               Save Changes
                             </button>
                           </div>
@@ -360,41 +360,41 @@
                     const activityList = document.getElementById('recent-activity-list');
                     if (recentJobs.length > 0) {
                         activityList.innerHTML = recentJobs.map(job => `
-                            <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                                <div class="w-2 h-2 mt-2 rounded-full bg-blue-600"></div>
+                            <div class="flex items-start gap-3 p-3 bg-[#F7FAFC] rounded-lg">
+                                <div class="w-2 h-2 mt-2 rounded-full bg-[#3B82F6]"></div>
                                 <div class="flex-1">
-                                    <p class="text-sm text-gray-900">Job "${job.name}" has status ${job.status}</p>
-                                    <p class="text-xs text-gray-500 mt-1">${new Date(job.submitted_at).toLocaleString()}</p>
+                                    <p class="text-sm text-[#2C3E50]">Job "${job.name}" has status ${job.status}</p>
+                                    <p class="text-xs text-[#4A5568] mt-1">${new Date(job.submitted_at).toLocaleString()}</p>
                                 </div>
                             </div>
                         `).join('');
                     } else {
-                        activityList.innerHTML = '<p class="text-sm text-gray-500">No recent activity in the last 12 hours.</p>';
+                        activityList.innerHTML = '<p class="text-sm text-[#4A5568]">No recent activity in the last 12 hours.</p>';
                     }
 
                     let table = `
                         <table id="jobs-table" class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200">
+                            <thead class="bg-[#F7FAFC] border-b border-[#E2E8F0]">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted By</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-[#4A5568] uppercase tracking-wider">Job Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-[#4A5568] uppercase tracking-wider">Submitted By</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-[#4A5568] uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-[#4A5568] uppercase tracking-wider">Created</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-[#4A5568] uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
+                            <tbody class="divide-y divide-[#E2E8F0]">
                     `;
                     data.forEach(job => {
                         const isCancelable = ['RUNNING', 'PENDING', 'SUBMITTED', 'RUNNABLE', 'STARTING', 'PROVISIONING'].includes(job.status);
                         const isViewable = ['RUNNING', 'COMPLETED', 'FAILED'].includes(job.status);
                         table += `
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-[#F7FAFC] transition-colors">
                                 <td class="px-6 py-4">
-                                    <div class="font-medium text-gray-900" title="UUID: ${job.uuid}">${job.name}</div>
+                                    <div class="font-medium text-[#2C3E50]" title="UUID: ${job.uuid}">${job.name}</div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-700">${job.submitted_by}</div>
+                                    <div class="text-sm text-[#4A5568]">${job.submitted_by}</div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(job.status)}">
@@ -402,16 +402,16 @@
                                         ${job.status}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-600">
+                                <td class="px-6 py-4 text-sm text-[#4A5568]">
                                     ${new Date(job.submitted_at).toLocaleString()}
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="viewJobLogs('${job.uuid}')" ${isViewable ? '' : 'disabled'} title="View Logs">
-                                            <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
+                                        <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="viewJobLogs('${job.uuid}')" ${isViewable ? '' : 'disabled'} title="View Logs">
+                                            <i data-lucide="eye" class="w-4 h-4 text-[#4A5568]"></i>
                                         </button>
-                                        <button class="p-2 hover:bg-red-50 rounded-lg transition-colors" onclick="cancelJob('${job.uuid}')" ${isCancelable ? '' : 'disabled'} title="Cancel Job">
-                                            <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
+                                        <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="cancelJob('${job.uuid}')" ${isCancelable ? '' : 'disabled'} title="Cancel Job">
+                                            <i data-lucide="trash-2" class="w-4 h-4 text-[#EF4444]"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -521,7 +521,7 @@
             const segments = prefix.split('/').filter(Boolean);
 
             const rootLink = document.createElement('button');
-            rootLink.className = 'text-blue-600 hover:text-blue-800 font-medium';
+            rootLink.className = 'text-[#4A5568] hover:text-[#2C3E50] font-medium';
             rootLink.textContent = 'Bucket Root';
             rootLink.onclick = (e) => { e.preventDefault(); loadS3Browser(''); };
             breadcrumbsDiv.appendChild(rootLink);
@@ -530,11 +530,11 @@
                 path += segment + '/';
                 const separator = document.createElement('i');
                 separator.setAttribute('data-lucide', 'chevron-right');
-                separator.className = 'w-4 h-4 text-gray-400';
+                separator.className = 'w-4 h-4 text-[#A0AEC0]';
                 breadcrumbsDiv.appendChild(separator);
 
                 const link = document.createElement('button');
-                link.className = 'text-blue-600 hover:text-blue-800 font-medium';
+                link.className = 'text-[#4A5568] hover:text-[#2C3E50] font-medium';
                 link.textContent = segment;
                 const currentPath = path;
                 link.onclick = (e) => { e.preventDefault(); loadS3Browser(currentPath); };
@@ -550,21 +550,21 @@
             folders.forEach(folder => {
                 const folderName = folder.replace(current_prefix, '').replace('/', '');
                 content += `
-                    <div class="p-4 hover:bg-gray-50 transition-colors">
+                    <div class="p-4 hover:bg-[#F7FAFC] transition-colors">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3 flex-1">
-                                <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50">
-                                    <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-[#E2E8F0]">
+                                    <i data-lucide="folder" class="w-5 h-5 text-[#4A5568]"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-900 cursor-pointer" onclick="event.stopPropagation(); loadS3Browser('${folder}')">${folderName}</div>
+                                    <div class="font-medium text-[#2C3E50] cursor-pointer" onclick="event.stopPropagation(); loadS3Browser('${folder}')">${folderName}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); renameFolder('${folder}')" title="Rename"><i data-lucide="edit" class="w-4 h-4 text-gray-600"></i></button>
-                                <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); copyFolder('${folder}')" title="Copy"><i data-lucide="copy" class="w-4 h-4 text-gray-600"></i></button>
-                                <button class="p-2 hover:bg-red-50 rounded-lg transition-colors" onclick="event.stopPropagation(); deleteFolder('${folder}')" title="Delete">
-                                    <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
+                                <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="event.stopPropagation(); renameFolder('${folder}')" title="Rename"><i data-lucide="edit" class="w-4 h-4 text-[#4A5568]"></i></button>
+                                <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="event.stopPropagation(); copyFolder('${folder}')" title="Copy"><i data-lucide="copy" class="w-4 h-4 text-[#4A5568]"></i></button>
+                                <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="event.stopPropagation(); deleteFolder('${folder}')" title="Delete">
+                                    <i data-lucide="trash-2" class="w-4 h-4 text-[#EF4444]"></i>
                                 </button>
                             </div>
                         </div>
@@ -575,28 +575,28 @@
             files.forEach(file => {
                 const fileName = file.key.replace(current_prefix, '');
                 content += `
-                    <div class="p-4 hover:bg-gray-50 transition-colors">
+                    <div class="p-4 hover:bg-[#F7FAFC] transition-colors">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3 flex-1">
-                                <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-50">
-                                    <i data-lucide="file" class="w-5 h-5 text-gray-600"></i>
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-[#F7FAFC]">
+                                    <i data-lucide="file" class="w-5 h-5 text-[#4A5568]"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-900 cursor-pointer" onclick="event.stopPropagation(); viewFile('${file.key}')">${fileName}</div>
-                                    <div class="text-sm text-gray-500">${new Date(file.last_modified).toLocaleString()}</div>
+                                    <div class="font-medium text-[#2C3E50] cursor-pointer" onclick="event.stopPropagation(); viewFile('${file.key}')">${fileName}</div>
+                                    <div class="text-sm text-[#718096]">${new Date(file.last_modified).toLocaleString()}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-6">
-                                <span class="text-sm text-gray-600 w-24 text-right">${formatBytes(file.size)}</span>
+                                <span class="text-sm text-[#4A5568] w-24 text-right">${formatBytes(file.size)}</span>
                                 <div class="flex items-center gap-2">
-                                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); viewFile('${file.key}')" title="View"><i data-lucide="eye" class="w-4 h-4 text-gray-600"></i></button>
-                                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); downloadFile('${file.key}')" title="Download">
-                                        <i data-lucide="download" class="w-4 h-4 text-gray-600"></i>
+                                    <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="event.stopPropagation(); viewFile('${file.key}')" title="View"><i data-lucide="eye" class="w-4 h-4 text-[#4A5568]"></i></button>
+                                    <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="event.stopPropagation(); downloadFile('${file.key}')" title="Download">
+                                        <i data-lucide="download" class="w-4 h-4 text-[#4A5568]"></i>
                                     </button>
-                                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); renameFile('${file.key}')" title="Rename"><i data-lucide="edit" class="w-4 h-4 text-gray-600"></i></button>
-                                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" onclick="event.stopPropagation(); copyFile('${file.key}')" title="Copy"><i data-lucide="copy" class="w-4 h-4 text-gray-600"></i></button>
-                                    <button class="p-2 hover:bg-red-50 rounded-lg transition-colors" onclick="event.stopPropagation(); deleteFile('${file.key}')" title="Delete">
-                                        <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
+                                    <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="event.stopPropagation(); renameFile('${file.key}')" title="Rename"><i data-lucide="edit" class="w-4 h-4 text-[#4A5568]"></i></button>
+                                    <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="event.stopPropagation(); copyFile('${file.key}')" title="Copy"><i data-lucide="copy" class="w-4 h-4 text-[#4A5568]"></i></button>
+                                    <button class="p-2 hover:bg-[#E2E8F0] rounded-lg transition-colors" onclick="event.stopPropagation(); deleteFile('${file.key}')" title="Delete">
+                                        <i data-lucide="trash-2" class="w-4 h-4 text-[#EF4444]"></i>
                                     </button>
                                 </div>
                             </div>
@@ -932,14 +932,14 @@
 
             // Deactivate all tabs
             document.querySelectorAll('nav button').forEach(button => {
-                button.classList.remove('bg-blue-50', 'text-blue-700');
-                button.classList.add('text-gray-700', 'hover:bg-gray-50');
+                button.classList.remove('bg-[#E2E8F0]', 'text-[#2C3E50]');
+                button.classList.add('text-[#4A5568]', 'hover:bg-[#F7FAFC]');
             });
 
             // Activate the selected tab and content
             document.getElementById(`${tabName}-content`).classList.remove('hidden');
-            document.getElementById(`${tabName}-tab`).classList.add('bg-blue-50', 'text-blue-700');
-            document.getElementById(`${tabName}-tab`).classList.remove('text-gray-700', 'hover:bg-gray-50');
+            document.getElementById(`${tabName}-tab`).classList.add('bg-[#E2E8F0]', 'text-[#2C3E50]');
+            document.getElementById(`${tabName}-tab`).classList.remove('text-[#4A5568]', 'hover:bg-[#F7FAFC]');
 
             lucide.createIcons();
         }
@@ -951,9 +951,9 @@
             ];
             const dropdown = document.querySelector('#notifications-dropdown .max-h-96');
             dropdown.innerHTML = notifications.map(notif => `
-                <div class="p-4 border-b border-gray-100 hover:bg-gray-50">
-                    <p class="text-sm text-gray-900">${notif.text}</p>
-                    <p class="text-xs text-gray-500 mt-1">${notif.time}</p>
+                <div class="p-4 border-b border-[#E2E8F0] hover:bg-[#F7FAFC]">
+                    <p class="text-sm text-[#2C3E50]">${notif.text}</p>
+                    <p class="text-xs text-[#4A5568] mt-1">${notif.time}</p>
                 </div>
             `).join('');
         }
@@ -979,17 +979,17 @@
 
         function getStatusColor(status) {
             switch(status) {
-                case 'COMPLETED': return 'bg-green-100 text-green-800 border-green-200';
-                case 'SUCCEEDED': return 'bg-green-100 text-green-800 border-green-200';
-                case 'RUNNING': return 'bg-blue-100 text-blue-800 border-blue-200';
-                case 'PENDING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                case 'QUEUED': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                case 'SUBMITTED': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                case 'RUNNABLE': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                case 'STARTING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                case 'PROVISIONING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                case 'FAILED': return 'bg-red-100 text-red-800 border-red-200';
-                default: return 'bg-gray-100 text-gray-800 border-gray-200';
+                case 'COMPLETED': return 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20';
+                case 'SUCCEEDED': return 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20';
+                case 'RUNNING': return 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20';
+                case 'PENDING': return 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20';
+                case 'QUEUED': return 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20';
+                case 'SUBMITTED': return 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20';
+                case 'RUNNABLE': return 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20';
+                case 'STARTING': return 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20';
+                case 'PROVISIONING': return 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20';
+                case 'FAILED': return 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20';
+                default: return 'bg-[#A0AEC0]/10 text-[#4A5568] border-[#A0AEC0]/20';
             }
         }
     </script>
