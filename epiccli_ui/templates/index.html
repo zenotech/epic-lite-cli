@@ -7,28 +7,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-[#F4B665]">
     <div class="min-h-screen flex items-center justify-center">
-        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg border border-gray-200">
+        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg border border-[#E2E8F0]">
             <div class="flex flex-col items-center space-y-4">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-16 h-16">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-16 h-16 object-contain">
                 <div class="text-center">
-                    <h1 class="text-3xl font-bold text-gray-900">Epic Projects</h1>
-                    <p class="text-gray-600">Please select a project to continue</p>
+                    <h1 class="text-3xl font-bold text-[#2C3E50]">Epic Projects</h1>
+                    <p class="text-[#4A5568]">Please select a project to continue</p>
                 </div>
             </div>
 
             {% if projects %}
                 <div class="space-y-3">
                     {% for project in projects %}
-                        <a href="{{ url_for('select_project', project_name=project) }}" class="block w-full px-4 py-3 text-center font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                        <a href="{{ url_for('select_project', project_name=project) }}" class="block w-full px-4 py-3 text-center font-medium text-white bg-[#E89C3D] rounded-lg hover:bg-[#D88925] transition-colors">
                             {{ project }}
                         </a>
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="text-center p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
-                    <p class="text-yellow-800">No projects found. Please configure a project using the `epiccli`.</p>
+                <div class="text-center p-4 border border-[#F59E0B]/20 bg-[#F59E0B]/10 rounded-lg">
+                    <p class="text-[#F59E0B]">No projects found. Please configure a project using the `epiccli`.</p>
                 </div>
             {% endif %}
         </div>
