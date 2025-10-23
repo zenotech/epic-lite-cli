@@ -427,7 +427,12 @@ def api_s3_view(key):
     try:
         s3_client, bucket_name = get_s3_client()
         response = s3_client.get_object(Bucket=bucket_name, Key=key)
-        return response['Body'].read(), 200, {'Content-Type': response['ContentType']}
+        if key.endswith('.png'):
+            content_type = 'image/png'
+        else:
+            content_type = 'application/octet-stream'  # safe for VTK.js
+        print(content_type)
+        return response['Body'].read(), 200, {'Content-Type': content_type}
     except ClientError as e:
         if e.response['Error']['Code'] == 'NoSuchKey':
             return jsonify({"error": "File not found"}), 404
