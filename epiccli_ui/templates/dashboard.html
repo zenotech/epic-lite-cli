@@ -140,8 +140,8 @@
                             <h3 class="font-semibold text-[#2C3E50]">Storage Used</h3>
                             <i data-lucide="hard-drive" class="w-5 h-5 text-[#10B981]"></i>
                           </div>
-                          <div id="storage-used-value" class="text-3xl font-bold text-[#2C3E50] mb-2">0 MB</div>
-                          <p id="storage-used-desc" class="text-sm text-[#4A5568]">0 files, 0 folders</p>
+                          <div id="storage-used-value" class="text-3xl font-bold text-[#2C3E50] mb-2">Loading...</div>
+                          <p id="storage-used-desc" class="text-sm text-[#4A5568]">Loading...</p>
                         </div>
 
                         <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
@@ -274,9 +274,10 @@
             loadBillingInfo();
             loadJobs();
             loadS3Browser();
+            loadStorageStats();
             //loadDashboardData();
             loadNotifications();
-            lucide.createIcons();
+            lucide.createIcons({ root: document.body });
 
             document.getElementById('refresh-jobs').addEventListener('click', loadJobs);
 
@@ -323,6 +324,26 @@
                 })
                 .catch(error => {
                     console.error('Error fetching billing info:', error);
+                });
+        }
+
+        function loadStorageStats() {
+            fetch('/api/s3/bucket-size')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error fetching storage stats:', data.error);
+                        document.getElementById('storage-used-value').textContent = 'Error';
+                        document.getElementById('storage-used-desc').textContent = 'Could not load stats';
+                        return;
+                    }
+                    document.getElementById('storage-used-value').textContent = formatBytes(data.total_size);
+                    document.getElementById('storage-used-desc').textContent = `${data.total_objects.toLocaleString()} objects`;
+                })
+                .catch(error => {
+                    console.error('Error fetching storage stats:', error);
+                    document.getElementById('storage-used-value').textContent = 'Error';
+                    document.getElementById('storage-used-desc').textContent = 'Could not load stats';
                 });
         }
 
@@ -420,7 +441,7 @@
                     });
                     table += '</tbody></table>';
                     jobListDiv.innerHTML = table;
-                    lucide.createIcons();
+                    lucide.createIcons({ root: jobListDiv });
                     $('#jobs-table').DataTable({
                         "order": [[ 4, "desc" ]]
                     });
@@ -540,7 +561,7 @@
                 link.onclick = (e) => { e.preventDefault(); loadS3Browser(currentPath); };
                 breadcrumbsDiv.appendChild(link);
             });
-            lucide.createIcons();
+            lucide.createIcons({ root: breadcrumbsDiv });
         }
 
         function renderS3Files(folders, files) {
@@ -606,7 +627,7 @@
             });
 
             fileListDiv.innerHTML = content;
-            lucide.createIcons();
+            lucide.createIcons({ root: fileListDiv });
         }
 
         function formatBytes(bytes, decimals = 2) {
@@ -781,7 +802,8 @@
         }
 
         function copyFolder(sourceFolder) {
-            const destFolder = prompt('Enter new path for the copy:', sourceFolder + '_copy');
+            let folderName = sourceFolder.endsWith('/') ? sourceFolder.slice(0, -1) : sourceFolder;
+            const destFolder = prompt('Enter new path for the copy:', folderName + '_copy');
             if (!destFolder) return;
 
             fetch('/api/s3/copy-folder', {
@@ -954,11 +976,12 @@
             });
 
             // Activate the selected tab and content
-            document.getElementById(`${tabName}-content`).classList.remove('hidden');
+            const tabContent = document.getElementById(`${tabName}-content`);
+            tabContent.classList.remove('hidden');
             document.getElementById(`${tabName}-tab`).classList.add('bg-[#E2E8F0]', 'text-[#2C3E50]');
             document.getElementById(`${tabName}-tab`).classList.remove('text-[#4A5568]', 'hover:bg-[#F7FAFC]');
 
-            lucide.createIcons();
+            lucide.createIcons({ root: tabContent });
         }
         function loadNotifications() {
             const notifications = [
