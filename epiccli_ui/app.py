@@ -11,6 +11,8 @@ from flask import Flask, render_template, redirect, url_for, session, jsonify, r
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+# In-memory cache for S3 bucket stats
+s3_bucket_stats_cache = {}
 
 def get_config(project_name=None):
     """Reads the epic config file."""
@@ -436,6 +438,35 @@ def api_s3_view(key):
     except ClientError as e:
         if e.response['Error']['Code'] == 'NoSuchKey':
             return jsonify({"error": "File not found"}), 404
+        return jsonify({"error": f"S3 Error: {e.response['Error']['Message']}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
+
+@app.route('/api/s3/bucket-size')
+def api_s3_bucket_size():
+    project_id = session.get('project_id')
+    if not project_id:
+        return jsonify({"error": "Project not in session"}), 400
+
+    # Check cache first
+    if project_id in s3_bucket_stats_cache:
+        return jsonify(s3_bucket_stats_cache[project_id])
+
+    try:
+        s3_client, bucket_name = get_s3_client()
+        paginator = s3_client.get_paginator('list_objects_v2')
+        total_size = 0
+        total_objects = 0
+        for page in paginator.paginate(Bucket=bucket_name):
+            contents = page.get('Contents', [])
+            total_objects += len(contents)
+            for content in contents:
+                total_size += content.get('Size', 0)
+
+        stats = {'total_size': total_size, 'total_objects': total_objects}
+        s3_bucket_stats_cache[project_id] = stats
+        return jsonify(stats)
+    except ClientError as e:
         return jsonify({"error": f"S3 Error: {e.response['Error']['Message']}"}), 500
     except Exception as e:
         return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
