@@ -158,20 +158,20 @@ def init(project_name):
 
         is_windows = platform.system() == 'Windows'
 
-        click.echo("\n# Authentication successful!")
+        click.echo("\n# Authentication successful!", err=True)
         if is_windows:
-            click.echo("# To configure your current PowerShell session, pipe the output of this command to Invoke-Expression:")
-            click.echo(f'# epic init {project_name} | Invoke-Expression')
+            click.echo("# To configure your current PowerShell session, pipe the output of this command to Invoke-Expression:", err=True)
+            click.echo(f'# epic init {project_name} | Invoke-Expression', err=True)
             click.echo(f'$env:EPIC_API_TOKEN="{id_token}"')
             click.echo(f'$env:EPIC_ACTIVE_PROJECT="{project_name}"')
         else:
-            click.echo("# To configure your current shell session, run the following command:")
-            click.echo(f'# eval "$(epic init {project_name})"')
+            click.echo("# To configure your current shell session, run the following command:", err=True)
+            click.echo(f'# eval "$(epic init {project_name})"', err=True)
             click.echo(f"export EPIC_API_TOKEN='{id_token}'")
             click.echo(f"export EPIC_ACTIVE_PROJECT='{project_name}'")
 
-        click.echo("\n# Note: These variables are only set for the current shell session.")
-        click.echo("# You will need to run `epic init` again for new sessions.")
+        click.echo("\n# Note: These variables are only set for the current shell session.", err=True)
+        click.echo("# You will need to run `epic init` again for new sessions.", err=True)
 
     except ClientError as e:
         if e.response['Error']['Code'] == 'NotAuthorizedException':
@@ -329,7 +329,8 @@ def billing(project_name):
 
 @cli.command()
 @click.argument('project_name', required=False)
-def keys(project_name):
+@click.option('--awsconfig', is_flag=True, help='Output in AWS config file format.')
+def keys(project_name, awsconfig):
     """Gets temporary data session keys as environment variables.
 
     This command fetches temporary AWS credentials and prints them as `export`
@@ -348,7 +349,7 @@ def keys(project_name):
         click.echo(f"Error: Project configuration '{project_name}' not found. Please configure it first using 'epic config'.")
         return
     project_config = config[project_name]
-    get_data_keys(project_config)
+    get_data_keys(project_config, project_name, awsconfig)
 
 @cli.group()
 def job():
