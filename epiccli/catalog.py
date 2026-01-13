@@ -76,11 +76,14 @@ def list_instances(project_config):
         # Sort instances by name for consistent output
         sorted_instances = sorted(data['instances'], key=lambda i: i['instance_type'])
         for instance in sorted_instances:
-            click.echo(
-                f"- {instance['instance_type']}: "
-                f"{instance['vcpus']} vCPUs, "
-                f"{instance['memory_gb']:.2f} GB Memory"
-            )
+            price_per_hour = instance.get('price_per_hour', 0)
+            if price_per_hour > 0:
+                click.echo(
+                    f"- {instance['instance_type']}: "
+                    f"{instance['vcpus']} vCPUs, "
+                    f"{instance['memory_gb']:.2f} GB Memory, "
+                    f"${instance.get('price_per_hour', 0):.4f}/hr"
+                )
 
     except requests.exceptions.RequestException as e:
         click.echo(f"Error fetching instance types: {e}")

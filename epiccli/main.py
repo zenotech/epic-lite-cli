@@ -2,6 +2,7 @@ import click
 import os
 import json
 import boto3
+import requests
 from botocore.exceptions import ClientError
 import platform
 from getpass import getpass
@@ -432,6 +433,12 @@ def create_job_command(job_json_file, project_name):
 
     Example `job.json` files:
 
+    The `job.json` file can have the following optional fields:
+
+    - `instance_types`: A list of instance types to use for the job. If not
+      specified, the default instance types are used. 
+    - Use the `epic catalog list-instances` command to see the available instance types.
+
     .. code-block:: json
 
         {
@@ -444,7 +451,8 @@ def create_job_command(job_json_file, project_name):
                                 "partitions": 64, 
                                 "runtime": 1, 
                                 "task_distribution": "core",
-                                "memory_gb": 16
+                                "memory_gb": 16,
+                                "instance_types": ["m5.xlarge"]
                             }]
                 },
                 "input_data": {"path": "HPC_motorbike/Small/v8"},
@@ -465,7 +473,8 @@ def create_job_command(job_json_file, project_name):
                                 "partitions": 32, 
                                 "runtime": 1, 
                                 "task_distribution": "core",
-                                "memory_gb": 16
+                                "memory_gb": 16,
+                                "instance_types": ["m5.xlarge"] 
                             }]
                 },
                 "input_data": {"path": "v2212/motorBike"},
@@ -567,6 +576,80 @@ def tail_job_command(job_id, project_name):
         return
     project_config = config[project_name]
     tail_job(job_id, project_config)
+
+@click.group()
+def admin():
+    """Administrative commands."""
+    pass
+
+@admin.command(name='update-setting')
+@click.argument('setting')
+@click.argument('value')
+@click.argument('project_name', required=False)
+def update_setting_command(setting, value, project_name):
+    """
+    Update a system setting.
+    
+    SETTING: The name of the setting to update (e.g., instance_types)
+    VALUE: The new value for the setting. For lists, use comma-separated values.
+
+    Example:
+    epic admin update-setting instance_types "m5.xlarge,m5.2xlarge"
+    """
+    project_name = get_active_project(project_name)
+    if not project_name:
+        return
+
+    config = get_config()
+    if project_name not in config:
+        click.echo(f"Error: Project configuration '{project_name}' not found. Please configure it first using 'epic config'.")
+        return
+    project_config = config[project_name]
+
+    token = os.environ.get("EPIC_API_TOKEN")
+    if not token:
+        click.echo("Error: EPIC_API_TOKEN environment variable not set. Please run 'epic init' first.")
+        return
+
+    headers = {"Authorization": f"Bearer {token}"}
+    api_url = project_config['epic_api_url']
+
+    # Parse value if it looks like a list (simple heuristic or specific handling for known list settings)
+    if setting in ['instance_types', 'admin_users', 'application_list']:
+        if ',' in value:
+            parsed_value = [v.strip() for v in value.split(',')]
+        else:
+            try:
+                # Try to parse as JSON first (e.g. for explicit '["item"]')
+                parsed = json.loads(value)
+                if isinstance(parsed, list):
+                    parsed_value = parsed
+                else:
+                    # Single value but JSON-parsable (e.g. quoted string), wrap in list
+                    parsed_value = [str(parsed)]
+            except json.JSONDecodeError:
+                # Plain string, wrap in list
+                parsed_value = [value.strip()]
+    else:
+        # Try to parse as JSON, fallback to string
+        try:
+            parsed_value = json.loads(value)
+        except json.JSONDecodeError:
+            parsed_value = value
+
+    payload = {"value": parsed_value}
+
+    try:
+        response = requests.post(f"{api_url}/settings/{setting}", json=payload, headers=headers)
+        if response.status_code == 403:
+             click.echo("Error: You do not have permission to perform this action.")
+             return
+        response.raise_for_status()
+        click.echo(f"Successfully updated setting '{setting}'.")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"Error updating setting: {e}")
+
+cli.add_command(admin)
 
 if __name__ == '__main__':
     cli()
