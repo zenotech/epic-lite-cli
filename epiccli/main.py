@@ -8,7 +8,7 @@ import platform
 from getpass import getpass
 from .user import create_user as createUser, delete_user as deleteUser
 from .project import get_project_details, update_spend_limit
-from .billing import get_billing_info
+from .billing import get_billing_info, generate_spend_report
 from .data import get_data_keys
 from .job import create_job, list_jobs, get_job, cancel_job, tail_job
 from .catalog import list_applications as list_catalog_applications, list_instances as list_catalog_instances
@@ -308,15 +308,36 @@ def update_spend(limit, project_name):
     project_config = config[project_name]
     update_spend_limit(project_name, limit, project_config)
 
-@cli.command()
-@click.argument('project_name', required=False)
-def billing(project_name):
+@cli.group(invoke_without_command=True)
+@click.option('--project', 'project_name_option', required=False, help='The name of the project. Defaults to the active project.')
+@click.pass_context
+def billing(ctx, project_name_option):
     """Reports on the project's monthly spend to date.
 
+    If no subcommand is provided, it displays the current monthly spend from the EPIC API.
+
     Args:
-        project_name (str, optional): The name of the project. Defaults to the
+        project_name_option (str, optional): The name of the project. Defaults to the
             active project.
     """
+    if ctx.invoked_subcommand is None:
+        project_name = get_active_project(project_name_option)
+        if not project_name:
+            return
+
+        config = get_config()
+        if project_name not in config:
+            click.echo(f"Error: Project configuration '{project_name}' not found. Please configure it first using 'epic config'.")
+            return
+        project_config = config[project_name]
+        get_billing_info(project_config)
+
+@billing.command(name="report")
+@click.option('--year', type=int, help='Year for the report (YYYY)')
+@click.option('--month', type=int, help='Month for the report (1-12)')
+@click.argument('project_name', required=False)
+def report(year, month, project_name):
+    """Generates a PDF spend report."""
     project_name = get_active_project(project_name)
     if not project_name:
         return
@@ -326,7 +347,8 @@ def billing(project_name):
         click.echo(f"Error: Project configuration '{project_name}' not found. Please configure it first using 'epic config'.")
         return
     project_config = config[project_name]
-    get_billing_info(project_config)
+
+    generate_spend_report(project_name, project_config, year, month)
 
 @cli.command()
 @click.argument('project_name', required=False)
