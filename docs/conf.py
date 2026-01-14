@@ -9,7 +9,7 @@
 from importlib import metadata
 
 project = 'epiccli'
-copyright = '2025, Zenotech Ltd'
+copyright = '2026, Zenotech Ltd'
 author = 'Zenotech Ltd'
 try:
     release = metadata.version('epiccli-lite')
