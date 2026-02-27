@@ -459,6 +459,9 @@ def create_job_command(job_json_file, project_name):
 
     - `instance_types`: A list of instance types to use for the job. If not
       specified, the default instance types are used. 
+    - `capacity_reservation_id`: (Optional) The ID of a Capacity Reservation (e.g., Capacity Blocks for ML) to target for the job.
+    - `task_distribution`: (Optional) The task distribution strategy (e.g., "core" or "node").
+    - `nodes`: (Optional) The number of nodes to use for the job, typically used when `task_distribution` is "node".
     - Use the `epic catalog list-instances` command to see the available instance types.
 
     .. code-block:: json
@@ -492,15 +495,16 @@ def create_job_command(job_json_file, project_name):
                 "spec": {
                     "app_code": "my-openfoam2212",
                     "tasks": [{"reference": "main-task", 
-                                "partitions": 32, 
+                                "partitions": 64, 
+                                "nodes": 2,
                                 "runtime": 1, 
-                                "task_distribution": "core",
+                                "task_distribution": "node",
                                 "memory_gb": 16,
-                                "instance_types": ["m5.xlarge"] 
+                                "instance_types": ["c5n.18xlarge"] 
                             }]
                 },
                 "input_data": {"path": "v2212/motorBike"},
-                "app_options": {"base_command": "su sudofoam -c '. /usr/lib/openfoam/openfoam2212/etc/bashrc && ls -lta && ./Allclean && ./Allrun'"},
+                "app_options": {"base_command": "su sudofoam -c '. /usr/lib/openfoam/openfoam2212/etc/bashrc && ls -lta && cat /tmp/hostfile && mpirun -np 64 -x PATH -x LD_LIBRARY_PATH -x WM_PROJECT_DIR -x FOAM_SETTINGS --hostfile /tmp/hostfile --use-hwthread-cpus simpleFoam -parallel | tee run.log && reconstructPar -latestTime'"},
                 "cluster": {"queue_code": "batch-single-node"}
             }]
         }    

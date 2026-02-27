@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,69 +18,63 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
+
 <body class="bg-[#F7FAFC]">
     <div class="min-h-screen flex">
         <!-- Sidebar -->
         <div class="w-64 bg-white border-r border-[#E2E8F0] flex flex-col">
-             <div class="p-6 border-b border-[#E2E8F0]">
-              <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-                <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo" class="w-10 h-10 object-contain">
-                <div>
-                  <h1 class="font-semibold text-[#2C3E50]">Epic Project</h1>
-                  <p class="text-xs text-[#718096]">{{ project_name }}</p>
-                </div>
-              </a>
+            <div class="p-6 border-b border-[#E2E8F0]">
+                <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+                    <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo"
+                        class="w-10 h-10 object-contain">
+                    <div>
+                        <h1 class="font-semibold text-[#2C3E50]">Epic Project</h1>
+                        <p class="text-xs text-[#718096]">{{ project_name }}</p>
+                    </div>
+                </a>
             </div>
             <nav class="flex-1 p-4">
                 <div class="space-y-1">
-                    <button
-                      onclick="setActiveTab('dashboard')"
-                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
-                      id="dashboard-tab"
-                    >
-                      <i data-lucide="home" class="w-5 h-5"></i>
-                      <span class="font-medium">Dashboard</span>
+                    <button onclick="setActiveTab('dashboard')"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
+                        id="dashboard-tab">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        <span class="font-medium">Dashboard</span>
                     </button>
 
-                    <button
-                      onclick="setActiveTab('jobs')"
-                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-[#E2E8F0] text-[#2C3E50]"
-                      id="jobs-tab"
-                    >
-                      <i data-lucide="briefcase" class="w-5 h-5"></i>
-                      <span class="font-medium">Jobs</span>
+                    <button onclick="setActiveTab('jobs')"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-[#E2E8F0] text-[#2C3E50]"
+                        id="jobs-tab">
+                        <i data-lucide="briefcase" class="w-5 h-5"></i>
+                        <span class="font-medium">Jobs</span>
                     </button>
 
-                    <button
-                      onclick="setActiveTab('storage')"
-                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
-                      id="storage-tab"
-                    >
-                      <i data-lucide="hard-drive" class="w-5 h-5"></i>
-                      <span class="font-medium">Storage</span>
+                    <button onclick="setActiveTab('storage')"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
+                        id="storage-tab">
+                        <i data-lucide="hard-drive" class="w-5 h-5"></i>
+                        <span class="font-medium">Storage</span>
                     </button>
 
-                    <button
-                      onclick="setActiveTab('settings')"
-                      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
-                      id="settings-tab" style="display: none;"
-                    >
-                      <i data-lucide="settings" class="w-5 h-5"></i>
-                      <span class="font-medium">Settings</span>
+                    <button onclick="setActiveTab('settings')"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-[#4A5568] hover:bg-[#F7FAFC]"
+                        id="settings-tab" style="display: none;">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                        <span class="font-medium">Settings</span>
                     </button>
-                  </div>
+                </div>
             </nav>
             <div class="p-4 border-t border-[#E2E8F0]">
                 <div class="bg-gradient-to-br from-[#F7FAFC] to-[#E2E8F0] rounded-lg p-4 border border-[#E2E8F0]">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-[#4A5568]">Monthly Spend</span>
-                    <i data-lucide="trending-up" class="w-4 h-4 text-[#4A5568]"></i>
-                  </div>
-                  <div class="text-2xl font-bold text-[#2C3E50] mb-1" id="current-spend">$0.00</div>
-                  <div class="text-xs text-[#4A5568] mb-3">of <span id="spend-limit">$0.00</span> limit</div>
-                  <div class="w-full bg-[#E2E8F0] rounded-full h-2">
-                    <div id="spend-bar" class="bg-[#A0AEC0] h-2 rounded-full" style="width: 0%"></div>
-                  </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-[#4A5568]">Monthly Spend</span>
+                        <i data-lucide="trending-up" class="w-4 h-4 text-[#4A5568]"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-[#2C3E50] mb-1" id="current-spend">$0.00</div>
+                    <div class="text-xs text-[#4A5568] mb-3">of <span id="spend-limit">$0.00</span> limit</div>
+                    <div class="w-full bg-[#E2E8F0] rounded-full h-2">
+                        <div id="spend-bar" class="bg-[#A0AEC0] h-2 rounded-full" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -90,36 +85,36 @@
             <header class="bg-white border-b border-[#E2E8F0] px-8 py-4">
                 <div class="flex items-center justify-between">
                     <div>
-                      <h2 class="text-2xl font-bold text-[#2C3E50]" id="header-title">Job Management</h2>
-                      <p class="text-sm text-[#4A5568] mt-1" id="header-subtitle">Monitor and manage your computational jobs</p>
+                        <h2 class="text-2xl font-bold text-[#2C3E50]" id="header-title">Job Management</h2>
+                        <p class="text-sm text-[#4A5568] mt-1" id="header-subtitle">Monitor and manage your
+                            computational jobs</p>
                     </div>
 
                     <div class="flex items-center gap-3">
-                      <div class="relative hidden">
-                        <button
-                          onclick="toggleNotifications()"
-                          class="p-2 hover:bg-[#F7FAFC] rounded-lg transition-colors relative"
-                        >
-                          <i data-lucide="bell" class="w-5 h-5 text-[#4A5568]"></i>
-                          <span class="absolute top-1 right-1 w-2 h-2 bg-[#EF4444] rounded-full"></span>
-                        </button>
+                        <div class="relative hidden">
+                            <button onclick="toggleNotifications()"
+                                class="p-2 hover:bg-[#F7FAFC] rounded-lg transition-colors relative">
+                                <i data-lucide="bell" class="w-5 h-5 text-[#4A5568]"></i>
+                                <span class="absolute top-1 right-1 w-2 h-2 bg-[#EF4444] rounded-full"></span>
+                            </button>
 
-                        <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-[#E2E8F0] z-50 hidden">
-                          <div class="p-4 border-b border-[#E2E8F0]">
-                            <h3 class="font-semibold text-[#2C3E50]">Notifications</h3>
-                          </div>
-                          <div class="max-h-96 overflow-y-auto">
-                            <!-- Notifications will be loaded here -->
-                          </div>
+                            <div id="notifications-dropdown"
+                                class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-[#E2E8F0] z-50 hidden">
+                                <div class="p-4 border-b border-[#E2E8F0]">
+                                    <h3 class="font-semibold text-[#2C3E50]">Notifications</h3>
+                                </div>
+                                <div class="max-h-96 overflow-y-auto">
+                                    <!-- Notifications will be loaded here -->
+                                </div>
+                            </div>
                         </div>
-                      </div>
 
-                      <div class="flex items-center gap-2 px-3 py-2 bg-[#F7FAFC] rounded-lg">
-                        <i data-lucide="user" class="w-4 h-4 text-[#4A5568]"></i>
-                        <span class="text-sm font-medium text-[#4A5568]">{{ username }}</span>
-                      </div>
+                        <div class="flex items-center gap-2 px-3 py-2 bg-[#F7FAFC] rounded-lg">
+                            <i data-lucide="user" class="w-4 h-4 text-[#4A5568]"></i>
+                            <span class="text-sm font-medium text-[#4A5568]">{{ username }}</span>
+                        </div>
                     </div>
-                  </div>
+                </div>
             </header>
 
             <!-- Content Area -->
@@ -127,79 +122,76 @@
                 <div id="dashboard-content" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
-                          <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-semibold text-[#2C3E50]">Active Jobs</h3>
-                            <i data-lucide="briefcase" class="w-5 h-5 text-[#3B82F6]"></i>
-                          </div>
-                          <div id="active-jobs-value" class="text-3xl font-bold text-[#2C3E50] mb-2">0</div>
-                          <p id="active-jobs-desc" class="text-sm text-[#4A5568]">0 running, 0 queued</p>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-[#2C3E50]">Active Jobs</h3>
+                                <i data-lucide="briefcase" class="w-5 h-5 text-[#3B82F6]"></i>
+                            </div>
+                            <div id="active-jobs-value" class="text-3xl font-bold text-[#2C3E50] mb-2">0</div>
+                            <p id="active-jobs-desc" class="text-sm text-[#4A5568]">0 running, 0 queued</p>
                         </div>
 
                         <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
-                          <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-semibold text-[#2C3E50]">Storage Used</h3>
-                            <i data-lucide="hard-drive" class="w-5 h-5 text-[#10B981]"></i>
-                          </div>
-                          <div id="storage-used-value" class="text-3xl font-bold text-[#2C3E50] mb-2">Loading...</div>
-                          <p id="storage-used-desc" class="text-sm text-[#4A5568]">Loading...</p>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-[#2C3E50]">Storage Used</h3>
+                                <i data-lucide="hard-drive" class="w-5 h-5 text-[#10B981]"></i>
+                            </div>
+                            <div id="storage-used-value" class="text-3xl font-bold text-[#2C3E50] mb-2">Loading...</div>
+                            <p id="storage-used-desc" class="text-sm text-[#4A5568]">Loading...</p>
                         </div>
 
                         <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
-                          <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-semibold text-[#2C3E50]">This Month</h3>
-                            <i data-lucide="calendar" class="w-5 h-5 text-[#8B5CF6]"></i>
-                          </div>
-                          <div id="this-month-value" class="text-3xl font-bold text-[#2C3E50] mb-2">$0.00</div>
-                          <p id="this-month-desc" class="text-sm text-[#4A5568]">0% of budget used</p>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-[#2C3E50]">This Month</h3>
+                                <i data-lucide="calendar" class="w-5 h-5 text-[#8B5CF6]"></i>
+                            </div>
+                            <div id="this-month-value" class="text-3xl font-bold text-[#2C3E50] mb-2">$0.00</div>
+                            <p id="this-month-desc" class="text-sm text-[#4A5568]">0% of budget used</p>
                         </div>
-                      </div>
+                    </div>
 
-                      <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
+                    <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
                         <h3 class="font-semibold text-[#2C3E50] mb-4">Recent Activity</h3>
                         <div id="recent-activity-list" class="space-y-4">
-                          <!-- Activity will be loaded here -->
+                            <!-- Activity will be loaded here -->
                         </div>
-                      </div>
+                    </div>
                 </div>
                 <div id="jobs-content" class="tab-content space-y-6">
                     <div class="bg-white rounded-lg border border-[#E2E8F0] p-4">
                         <div class="flex items-center justify-between gap-4">
                             <div class="flex items-center gap-3 flex-1">
                                 <div class="relative flex-1 max-w-md">
-                                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#A0AEC0]"></i>
-                                    <input
-                                      type="text"
-                                      id="job-search-input"
-                                      placeholder="Search jobs..."
-                                      class="w-full pl-10 pr-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent"
-                                    />
-                                  </div>
-                                  <div class="flex items-center gap-2">
+                                    <i data-lucide="search"
+                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#A0AEC0]"></i>
+                                    <input type="text" id="job-search-input" placeholder="Search jobs..."
+                                        class="w-full pl-10 pr-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent" />
+                                </div>
+                                <div class="flex items-center gap-2">
                                     <i data-lucide="filter" class="w-5 h-5 text-[#A0AEC0]"></i>
-                                    <select
-                                      id="job-status-filter"
-                                      class="px-3 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent"
-                                    >
-                                      <option value="all">All Status</option>
-                                      <option value="COMPLETED">Completed</option>
-                                      <option value="RUNNING">Running</option>
-                                      <option value="QUEUED">Queued</option>
-                                      <option value="FAILED">Failed</option>
+                                    <select id="job-status-filter"
+                                        class="px-3 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent">
+                                        <option value="all">All Status</option>
+                                        <option value="COMPLETED">Completed</option>
+                                        <option value="RUNNING">Running</option>
+                                        <option value="QUEUED">Queued</option>
+                                        <option value="FAILED">Failed</option>
                                     </select>
-                                  </div>
+                                </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button class="px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors flex items-center gap-2" id="refresh-jobs">
+                                <button
+                                    class="px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors flex items-center gap-2"
+                                    id="refresh-jobs">
                                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                                     Refresh
-                                  </button>
+                                </button>
                             </div>
                         </div>
                     </div>
                     <div class="bg-white rounded-lg border border-[#E2E8F0] overflow-hidden">
                         <div class="overflow-x-auto">
                             <div id="job-list">
-                            <p class="text-[#4A5568] p-4">Loading...</p>
+                                <p class="text-[#4A5568] p-4">Loading...</p>
                             </div>
                         </div>
                     </div>
@@ -211,11 +203,13 @@
                                 <!-- Breadcrumbs will be loaded here -->
                             </div>
                             <div class="flex items-center gap-2">
-                                <button id="s3-upload-button" class="px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors flex items-center gap-2">
+                                <button id="s3-upload-button"
+                                    class="px-4 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors flex items-center gap-2">
                                     <i data-lucide="upload" class="w-4 h-4"></i>
                                     Upload
                                 </button>
-                                <button id="s3-refresh-button" class="px-4 py-2 border border-[#A0AEC0] rounded-lg hover:bg-[#F7FAFC] transition-colors flex items-center gap-2">
+                                <button id="s3-refresh-button"
+                                    class="px-4 py-2 border border-[#A0AEC0] rounded-lg hover:bg-[#F7FAFC] transition-colors flex items-center gap-2">
                                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                                     Refresh
                                 </button>
@@ -232,36 +226,32 @@
                     <div class="bg-white rounded-lg border border-[#E2E8F0] p-6">
                         <h3 class="font-semibold text-[#2C3E50] mb-6">Project Settings</h3>
                         <div class="space-y-6">
-                          <div>
-                            <label class="block text-sm font-medium text-[#4A5568] mb-2">
-                              Monthly Spend Limit
-                            </label>
-                            <input
-                              type="number"
-                              defaultValue="100"
-                              class="w-full max-w-xs px-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent"
-                            />
-                            <p class="text-sm text-[#718096] mt-2">Set the maximum monthly spend for this project</p>
-                          </div>
+                            <div>
+                                <label class="block text-sm font-medium text-[#4A5568] mb-2">
+                                    Monthly Spend Limit
+                                </label>
+                                <input type="number" defaultValue="100"
+                                    class="w-full max-w-xs px-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent" />
+                                <p class="text-sm text-[#718096] mt-2">Set the maximum monthly spend for this project
+                                </p>
+                            </div>
 
-                          <div>
-                            <label class="block text-sm font-medium text-[#4A5568] mb-2">
-                              Project Name
-                            </label>
-                            <input
-                              type="text"
-                              value="{{ project_name }}"
-                              class="w-full max-w-xs px-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent"
-                            />
-                          </div>
+                            <div>
+                                <label class="block text-sm font-medium text-[#4A5568] mb-2">
+                                    Project Name
+                                </label>
+                                <input type="text" value="{{ project_name }}"
+                                    class="w-full max-w-xs px-4 py-2 border border-[#A0AEC0] rounded-lg focus:ring-2 focus:ring-[#A0AEC0] focus:border-transparent" />
+                            </div>
 
-                          <div class="pt-4">
-                            <button class="px-6 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors">
-                              Save Changes
-                            </button>
-                          </div>
+                            <div class="pt-4">
+                                <button
+                                    class="px-6 py-2 bg-[#2C3E50] text-white rounded-lg hover:bg-[#4A5568] transition-colors">
+                                    Save Changes
+                                </button>
+                            </div>
                         </div>
-                      </div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -270,7 +260,7 @@
     <script>
         let current_prefix = '';
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadBillingInfo();
             loadJobs();
             loadS3Browser();
@@ -281,11 +271,11 @@
 
             document.getElementById('refresh-jobs').addEventListener('click', loadJobs);
 
-            $('#job-search-input').on('keyup', function() {
+            $('#job-search-input').on('keyup', function () {
                 $('#jobs-table').DataTable().search($(this).val()).draw();
             });
 
-            $('#job-status-filter').on('change', function() {
+            $('#job-status-filter').on('change', function () {
                 if ($(this).val() === 'all') {
                     $('#jobs-table').DataTable().column(3).search('').draw();
                 } else {
@@ -407,8 +397,8 @@
                             <tbody class="divide-y divide-[#E2E8F0]">
                     `;
                     data.forEach(job => {
-                        const isCancelable = ['RUNNING', 'PENDING', 'SUBMITTED', 'RUNNABLE', 'STARTING', 'PROVISIONING'].includes(job.status);
-                        const isViewable = ['RUNNING', 'COMPLETED', 'FAILED'].includes(job.status);
+                        const isCancelable = ['RUNNING', 'PENDING', 'QUEUED', 'STARTING', 'PROVISIONING'].includes(job.status);
+                        const isViewable = ['RUNNING', 'COMPLETED', 'FAILED', 'CANCELLED'].includes(job.status);
                         table += `
                             <tr class="hover:bg-[#F7FAFC] transition-colors">
                                 <td class="px-6 py-4">
@@ -443,7 +433,7 @@
                     jobListDiv.innerHTML = table;
                     lucide.createIcons({ root: jobListDiv });
                     $('#jobs-table').DataTable({
-                        "order": [[ 4, "desc" ]]
+                        "order": [[4, "desc"]]
                     });
                 })
                 .catch(error => {
@@ -478,12 +468,12 @@
                 fileContentDiv.innerHTML = `<p style="color: red;">Failed to load logs: ${error.message}</p>`;
             }
 
-            closeButton.onclick = function() {
+            closeButton.onclick = function () {
                 modal.style.display = 'none';
                 fileContentDiv.innerHTML = '';
             }
 
-            window.onclick = function(event) {
+            window.onclick = function (event) {
                 if (event.target == modal) {
                     modal.style.display = 'none';
                     fileContentDiv.innerHTML = '';
@@ -651,20 +641,20 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key: key })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) throw new Error(data.error);
-                    return fetch(data.url, { method: 'PUT', body: file });
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Upload failed.');
-                    alert(`Successfully uploaded ${file.name}`);
-                    loadS3Browser(current_prefix);
-                })
-                .catch(error => {
-                    console.error('Upload error:', error);
-                    alert(`Failed to upload ${file.name}: ${error.message}`);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) throw new Error(data.error);
+                        return fetch(data.url, { method: 'PUT', body: file });
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Upload failed.');
+                        alert(`Successfully uploaded ${file.name}`);
+                        loadS3Browser(current_prefix);
+                    })
+                    .catch(error => {
+                        console.error('Upload error:', error);
+                        alert(`Failed to upload ${file.name}: ${error.message}`);
+                    });
             }
             // Reset input for next upload
             event.target.value = '';
@@ -706,16 +696,16 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key: key })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) throw new Error(data.error);
-                alert(data.message);
-                loadS3Browser(current_prefix);
-            })
-            .catch(error => {
-                console.error('Delete error:', error);
-                alert(`Failed to delete file: ${error.message}`);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    alert(data.message);
+                    loadS3Browser(current_prefix);
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    alert(`Failed to delete file: ${error.message}`);
+                });
         }
 
         function renameFile(oldKey) {
@@ -727,16 +717,16 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ old_key: oldKey, new_key: newKey })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) throw new Error(data.error);
-                alert(data.message);
-                loadS3Browser(current_prefix);
-            })
-            .catch(error => {
-                console.error('Rename error:', error);
-                alert(`Failed to rename file: ${error.message}`);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    alert(data.message);
+                    loadS3Browser(current_prefix);
+                })
+                .catch(error => {
+                    console.error('Rename error:', error);
+                    alert(`Failed to rename file: ${error.message}`);
+                });
         }
 
         function copyFile(sourceKey) {
@@ -748,16 +738,16 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ source_key: sourceKey, destination_key: destKey })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) throw new Error(data.error);
-                alert(data.message);
-                loadS3Browser(current_prefix);
-            })
-            .catch(error => {
-                console.error('Copy error:', error);
-                alert(`Failed to copy file: ${error.message}`);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    alert(data.message);
+                    loadS3Browser(current_prefix);
+                })
+                .catch(error => {
+                    console.error('Copy error:', error);
+                    alert(`Failed to copy file: ${error.message}`);
+                });
         }
 
         function deleteFolder(prefix) {
@@ -768,16 +758,16 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prefix: prefix })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) throw new Error(data.error);
-                alert(data.message);
-                loadS3Browser(current_prefix.startsWith(prefix) ? '' : current_prefix);
-            })
-            .catch(error => {
-                console.error('Delete folder error:', error);
-                alert(`Failed to delete folder: ${error.message}`);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    alert(data.message);
+                    loadS3Browser(current_prefix.startsWith(prefix) ? '' : current_prefix);
+                })
+                .catch(error => {
+                    console.error('Delete folder error:', error);
+                    alert(`Failed to delete folder: ${error.message}`);
+                });
         }
 
         function renameFolder(oldPrefix) {
@@ -789,16 +779,16 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ old_prefix: oldPrefix, new_prefix: newPrefix })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) throw new Error(data.error);
-                alert(data.message);
-                loadS3Browser(current_prefix.startsWith(oldPrefix) ? '' : current_prefix);
-            })
-            .catch(error => {
-                console.error('Rename folder error:', error);
-                alert(`Failed to rename folder: ${error.message}`);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    alert(data.message);
+                    loadS3Browser(current_prefix.startsWith(oldPrefix) ? '' : current_prefix);
+                })
+                .catch(error => {
+                    console.error('Rename folder error:', error);
+                    alert(`Failed to rename folder: ${error.message}`);
+                });
         }
 
         function copyFolder(sourceFolder) {
@@ -811,23 +801,23 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ source_folder: sourceFolder, destination_folder: destFolder })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) throw new Error(data.error);
-                alert(data.message);
-                loadS3Browser(current_prefix);
-            })
-            .catch(error => {
-                console.error('Copy folder error:', error);
-                alert(`Failed to copy folder: ${error.message}`);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    alert(data.message);
+                    loadS3Browser(current_prefix);
+                })
+                .catch(error => {
+                    console.error('Copy folder error:', error);
+                    alert(`Failed to copy folder: ${error.message}`);
+                });
         }
 
         async function viewFile(key) {
             const modal = document.getElementById('file-viewer-modal');
             const fileContentDiv = document.getElementById('file-content');
             const closeButton = document.querySelector('.close-button');
-            let vtkCleanup = () => {}; // No-op cleanup function by default
+            let vtkCleanup = () => { }; // No-op cleanup function by default
 
             // Clear previous content and show loading message
             fileContentDiv.innerHTML = '<p>Loading...</p>';
@@ -865,7 +855,7 @@
                     renderWindow.addView(openglRenderWindow);
 
                     const response = await fetch(`/api/s3/view/${key}`, {
-                            headers: { 'Accept': 'application/octet-stream' }
+                        headers: { 'Accept': 'application/octet-stream' }
                     });
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     //console.log("Response headers:", [...response.headers.entries()]);
@@ -936,7 +926,7 @@
             };
 
             closeButton.onclick = closeModal;
-            window.onclick = function(event) {
+            window.onclick = function (event) {
                 if (event.target == modal) {
                     closeModal();
                 }
@@ -1002,7 +992,7 @@
             document.getElementById('notifications-dropdown').classList.toggle('hidden');
         }
         function getStatusIcon(status) {
-            switch(status) {
+            switch (status) {
                 case 'COMPLETED': return 'check-circle';
                 case 'SUCCEEDED': return 'check-circle';
                 case 'RUNNING': return 'play';
@@ -1018,7 +1008,7 @@
         }
 
         function getStatusColor(status) {
-            switch(status) {
+            switch (status) {
                 case 'COMPLETED': return 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20';
                 case 'SUCCEEDED': return 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20';
                 case 'RUNNING': return 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20';
@@ -1034,4 +1024,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -78,11 +78,13 @@ def list_instances(project_config):
         for instance in sorted_instances:
             price_per_hour = instance.get('price_per_hour', 0)
             if price_per_hour > 0:
+                efa_str = "EFA Supported" if instance.get('efa_supported') else "No EFA"
                 click.echo(
                     f"- {instance['instance_type']}: "
                     f"{instance['vcpus']} vCPUs, "
                     f"{instance['memory_gb']:.2f} GB Memory, "
-                    f"${instance.get('price_per_hour', 0):.4f}/hr"
+                    f"${instance.get('price_per_hour', 0):.4f}/hr, "
+                    f"{efa_str}"
                 )
 
     except requests.exceptions.RequestException as e:

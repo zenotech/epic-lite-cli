@@ -28,6 +28,21 @@ def create_job(job_json_file, project_config):
         with open(job_json_file) as f:
             job_data = json.load(f)
 
+        jobs_list = job_data.get("jobs", []) if isinstance(job_data, dict) and "jobs" in job_data else [job_data]
+        for job_item in jobs_list:
+            if isinstance(job_item, dict):
+                tasks = job_item.get("spec", {}).get("tasks", [])
+                for task in tasks:
+                    partitions = int(task.get("partitions", 1))
+                    nodes = int(task.get("nodes", 2)) if task.get("task_distribution") == "node" else 1
+                    
+                    if partitions < nodes:
+                        click.echo(f"Error: Number of partitions ({partitions}) must be greater than or equal to number of nodes ({nodes}).")
+                        return
+                    if partitions % nodes != 0:
+                        click.echo(f"Error: Number of partitions ({partitions}) must be exactly divisible by number of nodes ({nodes}).")
+                        return
+
         response = requests.post(f"{api_url}/job/", headers=headers, json=job_data)
         response.raise_for_status()
         job_response = response.json()
